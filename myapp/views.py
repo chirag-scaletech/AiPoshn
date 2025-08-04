@@ -54,6 +54,18 @@ class TeacherCreateAPIView(APIView):
     #
     #     return Response(TeacherSerializer(teacher).data, status=status.HTTP_201_CREATED)
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="lang",
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description="Language code: 'en' (English) or 'gu' (Gujarati)",
+                required=False,
+                default='en'
+            )
+        ]
+    )
     def post(self, request):
         lang = request.query_params.get('lang')
         if not lang:
@@ -381,6 +393,7 @@ class UploadImage(APIView):
 
         # Parse menu (expecting a JSON string list in FormData)
         raw_menu = request.POST.get("menu", "[]")
+        print("raw_menu", raw_menu)
         try:
             menu_items = json.loads(raw_menu)
             if not isinstance(menu_items, list) or not all(isinstance(item, str) for item in menu_items):
