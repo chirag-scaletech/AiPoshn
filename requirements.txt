@@ -1,0 +1,12 @@
+asgiref==3.8.1
+backports.zoneinfo==0.2.1
+django==4.2.23
+djangorestframework==3.15.2
+drf-yasg==1.21.10
+inflection==0.5.1
+packaging==25.0
+pytz==2025.2
+PyYAML==6.0.2
+sqlparse==0.5.3
+typing-extensions==4.13.2
+uritemplate==4.1.1
