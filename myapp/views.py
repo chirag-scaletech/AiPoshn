@@ -12,7 +12,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Teacher
 from .serializers import TeacherSerializer
+from dotenv import load_dotenv
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
+load_dotenv()  # Loads from .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class TeacherCreateAPIView(APIView):
@@ -79,86 +84,178 @@ class TeacherDetailAPIView(APIView):
         }
         return Response(data, status=status.HTTP_200_OK)
 
-from django.http import JsonResponse
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-
 class SurveyAPIView(APIView):
     permission_classes = [AllowAny]  # Optional: allows public access
+
+    # def get(self, request, lang=None):
+    #     lang = lang or request.query_params.get('lang', 'en')
+    #     if lang not in ['en', 'gu']:
+    #         return JsonResponse({'error': 'Invalid language'}, status=400)
+    #
+    #     # [Rest of the survey dictionary logic as above]
+    #
+    # # def get(self, request):
+    # #     lang = request.query_params.get('lang', 'en')
+    # #     if lang not in ['en', 'gu']:
+    # #         return JsonResponse({'error': 'Invalid language'}, status=400)
+    #
+    #     if lang == 'gu':
+    #         survey = {
+    #             "surveyTitle": "ઝડપી ખોરાક સેવા સર્વે",
+    #             "description": "આજની નાસ્તાની સેવાઓ વિશેના કેટલાક ઝડપી પ્રશ્નોના જવાબ આપો.",
+    #             "questions": [
+    #                 {
+    #                     "id": "q1",
+    #                     "text": "શું તમામ વિદ્યાર્થીઓને સમયસર ભોજન આપવામાં આવ્યું?",
+    #                     "options": ["હા, બધાને", "હા, પરંતુ મોડું", "ના", "આંશિક"]
+    #                 },
+    #                 {
+    #                     "id": "q2",
+    #                     "text": "ખોરાકની તાજગી કેવી હતી?",
+    #                     "options": ["ખૂબ તાજું", "તાજું", "ઠીકઠાક", "તાજું નહોતું"]
+    #                 },
+    #                 {
+    #                     "id": "q3",
+    #                     "text": "શું ભોજનની માત્રા તમામ વિદ્યાર્થીઓ માટે પૂરતી હતી?",
+    #                     "options": ["ગણીએ એટલું વધારે", "પુરતું", "ઘટતું", "સૌ માટે પૂરતું નહતું"]
+    #                 },
+    #                 {
+    #                     "id": "q4",
+    #                     "text": "શુ ભોજન વિતરણ દરમ્યાન સ્વચ્છતા જાળવવામાં આવી?",
+    #                     "options": ["ઉત્કૃષ્ટ", "સારી", "સારું છે પણ સુધારો જોઈએ", "ખરાબ"]
+    #                 },
+    #                 {
+    #                     "id": "q5",
+    #                     "text": "આજની નાસ્તાની સેવા તમે કેટલી પ્રમાણમાં રેટ કરો?",
+    #                     "options": ["ઉત્કૃષ્ટ", "સારી", "સરેરાશ", "ખરાબ"]
+    #                 }
+    #             ]
+    #         }
+    #     else:  # English
+    #         survey = {
+    #             "surveyTitle": "Quick Food Service Survey",
+    #             "description": "Please answer these quick questions about today's breakfast service.",
+    #             "questions": [
+    #                 {
+    #                     "id": "q1",
+    #                     "text": "Was the meal served to all students on time?",
+    #                     "options": ["Yes, to all", "Yes, but late", "No", "Partial"]
+    #                 },
+    #                 {
+    #                     "id": "q2",
+    #                     "text": "How was the freshness of the food?",
+    #                     "options": ["Very Fresh", "Fresh", "Okay", "Not Fresh"]
+    #                 },
+    #                 {
+    #                     "id": "q3",
+    #                     "text": "Was the food quantity sufficient for all students?",
+    #                     "options": ["More than enough", "Just enough", "Less than required", "Not sufficient at all"]
+    #                 },
+    #                 {
+    #                     "id": "q4",
+    #                     "text": "Was hygiene maintained during food distribution?",
+    #                     "options": ["Excellent hygiene", "Good hygiene", "Acceptable but needs improvement", "Poor hygiene"]
+    #                 },
+    #                 {
+    #                     "id": "q5",
+    #                     "text": "Overall, how would you rate the breakfast service today?",
+    #                     "options": ["Excellent", "Good", "Average", "Poor"]
+    #                 }
+    #             ]
+    #         }
+    #
+    #     return JsonResponse(survey, safe=False)
 
     def get(self, request, lang=None):
         lang = lang or request.query_params.get('lang', 'en')
         if lang not in ['en', 'gu']:
             return JsonResponse({'error': 'Invalid language'}, status=400)
 
-        # [Rest of the survey dictionary logic as above]
-
-    # def get(self, request):
-    #     lang = request.query_params.get('lang', 'en')
-    #     if lang not in ['en', 'gu']:
-    #         return JsonResponse({'error': 'Invalid language'}, status=400)
-
         if lang == 'gu':
             survey = {
-                "surveyTitle": "ઝડપી ખોરાક સેવા સર્વે",
-                "description": "આજની નાસ્તાની સેવાઓ વિશેના કેટલાક ઝડપી પ્રશ્નોના જવાબ આપો.",
+                "surveyTitle": "મધ્યાન ભોજન નનરીક્ષણ માટે પ્રશ્નાવલી",
+                "description": "ભોજન સેવા પર નિરીક્ષણ માટે નીચે આપેલા પ્રશ્નોના જવાબ આપો.",
                 "questions": [
                     {
                         "id": "q1",
-                        "text": "શું તમામ વિદ્યાર્થીઓને સમયસર ભોજન આપવામાં આવ્યું?",
-                        "options": ["હા, બધાને", "હા, પરંતુ મોડું", "ના", "આંશિક"]
+                        "text": "ભોજન અગાઉ નક્કી કરેલ મેન્યુ મુજબ આપવામાં આવ્યું હતું કે નહીં?",
+                        "options": ["હા, મેન્યુ મુજબ સંપૂર્ણ", "થોડી ફેરફાર સાથે", "મોટા ફેરફાર સાથે",
+                                    "મેન્યુ મુજબ નહોતું"]
                     },
                     {
                         "id": "q2",
-                        "text": "ખોરાકની તાજગી કેવી હતી?",
-                        "options": ["ખૂબ તાજું", "તાજું", "ઠીકઠાક", "તાજું નહોતું"]
+                        "text": "આપેલા ભોજનની ગુણવત્તા સંતોષકારક હતી કે નહીં?",
+                        "options": ["ખૂબ સારી", "સારી", "સરેરાશ", "નબળી"]
                     },
                     {
                         "id": "q3",
-                        "text": "શું ભોજનની માત્રા તમામ વિદ્યાર્થીઓ માટે પૂરતી હતી?",
-                        "options": ["ગણીએ એટલું વધારે", "પુરતું", "ઘટતું", "સૌ માટે પૂરતું નહતું"]
+                        "text": "વિદ્યાર્થીઓ માટે ભોજનનું પ્રમાણ પૂરતું હતું કે નહીં?",
+                        "options": ["હા, બધાના માટે પૂરતું હતું", "અંશતઃ પૂરતું હતું", "થોડાક માટે ઓછું પડ્યું",
+                                    "બિલકુલ પૂરતું ન હતું"]
                     },
                     {
                         "id": "q4",
-                        "text": "શુ ભોજન વિતરણ દરમ્યાન સ્વચ્છતા જાળવવામાં આવી?",
-                        "options": ["ઉત્કૃષ્ટ", "સારી", "સારું છે પણ સુધારો જોઈએ", "ખરાબ"]
+                        "text": "કેટલાં ટકા વિદ્યાર્થીઓએ મોટાભાગનું ભોજન લીધું હતું?",
+                        "options": ["100%", "75–80%", "50–60%", "20–30%"]
                     },
                     {
                         "id": "q5",
-                        "text": "આજની નાસ્તાની સેવા તમે કેટલી પ્રમાણમાં રેટ કરો?",
-                        "options": ["ઉત્કૃષ્ટ", "સારી", "સરેરાશ", "ખરાબ"]
+                        "text": "આજે આપેલું ભોજન કોઈ વિદ્યાર્થીએ ખાવાનું નકાર્યું હતું?",
+                        "options": ["કોઈએ ન નકારી", "૧–૨ વિદ્યાર્થીઓ", "૩–૫ વિદ્યાર્થીઓ", "૫ કરતાં વધુ વિદ્યાર્થીઓ"]
+                    },
+                    {
+                        "id": "q6",
+                        "text": "ભોજન વહેંચણી દરમિયાન કોઈ સફાઈ અથવા સ્વચ્છતાની સમસ્યા જોવા મળી હતી?",
+                        "options": ["ના", "હળવી સમસ્યા", "ગંભીર સમસ્યા", "ધ્યાનમાં નથી"]
+                    },
+                    {
+                        "id": "q7",
+                        "text": "ભોજન પછી વિદ્યાર્થીઓ સંતોષ અને આનંદિત લાગ્યા?",
+                        "options": ["બધા વિદ્યાર્થીઓ", "મોટા ભાગના વિદ્યાર્થીઓ", "થોડાક વિદ્યાર્થીઓ", "કોઈ નહિ"]
                     }
                 ]
             }
-        else:  # English
+        else:
             survey = {
-                "surveyTitle": "Quick Food Service Survey",
-                "description": "Please answer these quick questions about today's breakfast service.",
+                "surveyTitle": "Questionnaire for Mid-Day Meal Observation",
+                "description": "Please answer the following questions for meal service monitoring.",
                 "questions": [
                     {
                         "id": "q1",
-                        "text": "Was the meal served to all students on time?",
-                        "options": ["Yes, to all", "Yes, but late", "No", "Partial"]
+                        "text": "Was the meal served as per the pre-decided menu?",
+                        "options": ["Yes, exactly as per menu", "Minor changes", "Major changes",
+                                    "Not at all as per menu"]
                     },
                     {
                         "id": "q2",
-                        "text": "How was the freshness of the food?",
-                        "options": ["Very Fresh", "Fresh", "Okay", "Not Fresh"]
+                        "text": "Was the quality of food served satisfactory?",
+                        "options": ["Very good", "Good", "Average", "Poor"]
                     },
                     {
                         "id": "q3",
-                        "text": "Was the food quantity sufficient for all students?",
-                        "options": ["More than enough", "Just enough", "Less than required", "Not sufficient at all"]
+                        "text": "Was the quantity of food sufficient for all students?",
+                        "options": ["Yes, sufficient for all", "Partially sufficient", "Insufficient for some",
+                                    "Not sufficient at all"]
                     },
                     {
                         "id": "q4",
-                        "text": "Was hygiene maintained during food distribution?",
-                        "options": ["Excellent hygiene", "Good hygiene", "Acceptable but needs improvement", "Poor hygiene"]
+                        "text": "What percentage of students consumed the major portion of their meal?",
+                        "options": ["100%", "75–80%", "50–60%", "20–30%"]
                     },
                     {
                         "id": "q5",
-                        "text": "Overall, how would you rate the breakfast service today?",
-                        "options": ["Excellent", "Good", "Average", "Poor"]
+                        "text": "Did any student refuse to eat the food served today?",
+                        "options": ["No student refused", "1–2 students", "3–5 students", "More than 5 students"]
+                    },
+                    {
+                        "id": "q6",
+                        "text": "Were there any visible hygiene or cleanliness issues during food distribution?",
+                        "options": ["No issues", "Minor concern", "Major concern", "Not Observed"]
+                    },
+                    {
+                        "id": "q7",
+                        "text": "Did students appear happy and satisfied after the meal?",
+                        "options": ["All students", "Most students", "Few students", "None"]
                     }
                 ]
             }
