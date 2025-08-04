@@ -1,14 +1,23 @@
 from django.urls import path
-from .views import TeacherCreateAPIView, TeacherListAPIView, TeacherDetailAPIView, SurveyAPIView
+from .views import (
+    TeacherCreateAPIView,
+    TeacherListAPIView,
+    TeacherDetailAPIView,
+    SurveyAPIView,
+    UploadImage,
+)
 
 urlpatterns = [
-    path('teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
-    path('teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
-    path('teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
+    # Teacher APIs
+    path('api/teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
+    path('api/teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
+    path('api/teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
 
-    path('getSurvey/', SurveyAPIView.as_view(), name='get-survey'),
-    path('getSurvey/<str:lang>/', SurveyAPIView.as_view(), name='get-survey-lang'),
+    # Survey API
+    path('api/survey/', SurveyAPIView.as_view(), name='get-survey'),
+    path('api/survey/<str:lang>/', SurveyAPIView.as_view(), name='get-survey-lang'),
 
-
+    # Image Menu Verification
+    path('api/verify-menu/', UploadImage.as_view(), name='verify-menu'),
 
 ]
