@@ -1,4 +1,5 @@
 import base64
+import os
 import random
 import re
 import tempfile
@@ -12,7 +13,7 @@ from rest_framework import status
 from .models import Teacher
 from .serializers import TeacherSerializer
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class TeacherCreateAPIView(APIView):
     def post(self, request):
