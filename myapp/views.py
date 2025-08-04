@@ -419,8 +419,16 @@ class UploadImage(APIView):
 
             # Prompts for language
             if lang == "gu":
-                prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો."
-                prompt_nutrition = "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? ઉપરાંત, દરેક વસ્તુ માટે, કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ જેવી અંદાજિત પોષક માહિતી આપો."
+                prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+                # prompt_nutrition = "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? ઉપરાંત, દરેક વસ્તુ માટે, કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ જેવી અંદાજિત પોષક માહિતી આપો. "
+                prompt_nutrition = (
+                    "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
+                    "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
+                    "જેમ કે કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ. "
+                    "દરેક ખોરાક વસ્તુને અલગ રીતે જણાવો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+                )
+
+
             else:
                 prompt_food = "What food items do you see in this image? Just list them."
                 prompt_nutrition = "What food items do you see in this image? Also, for each item, provide its approximate nutritional information such as calories, protein, fat, and carbs."
@@ -516,6 +524,21 @@ class UploadImage(APIView):
                     continue
 
                     # Match nutrition info in Gujarati or English
+                if current_item:
+                    nutrition_match = re.match(
+                        r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
+                    if nutrition_match:
+                        key = nutrition_match.group(1).strip().lower()
+                        value = nutrition_match.group(2).strip()
+                        nutritions[current_item][key] = value
+            # Here Want to check for Nutrition if { }
+            # Case 1: Entire dict is empty
+            if not nutritions:
+                print("Nutrition data is completely empty")
+
+            # Case 2: All items have empty dictionaries
+            elif all(not value for value in nutritions.values()):
+                print("All nutrition entries are empty")
                 if current_item:
                     nutrition_match = re.match(
                         r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
