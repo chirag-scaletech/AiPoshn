@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from corsheaders.defaults import default_headers
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +28,19 @@ SECRET_KEY = 'django-insecure-=+7b6^9u5lz9c^c-wm(4e7lrd72tktazcz)!$k07x-h2&l-2#$
 DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.1.51', 'localhost', '127.0.0. 1']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+    # or your deployed frontend URL
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'ngrok-skip-browser-warning',
+]
+
+
+
 
 
 # Application definition
@@ -40,6 +55,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'myapp',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'root.urls'

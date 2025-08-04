@@ -21,22 +21,42 @@ load_dotenv()  # Loads from .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class TeacherCreateAPIView(APIView):
+    # def post(self, request):
+    #     lang = request.query_params.get('lang', 'en')
+    #     if lang not in ['en', 'gu']:
+    #         return Response({'error': 'Invalid language'}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     # username = "Vaishaliben Patel" if lang == 'en' else "વૈશાલી બેન પટેલ"
+    #     # teacher = Teacher.objects.create(
+    #     #     username_en=username if lang == 'en' else '',
+    #     #     username_gu=username if lang == 'gu' else ''
+    #     # )
+    #
+    #     # Always save both fields regardless of lang
+    #     # teacher = Teacher.objects.create(
+    #     #     username_en="Vaishaliben Patel",
+    #     #     username_gu="વૈશાલીબેન પટેલ"
+    #     # )
+    #
+    #     names_en = ["Vaishaliben Patel", "Parulben Shah", "Manishaben Desai"]
+    #     names_gu = ["વૈશાલીબેન પટેલ", "પારૂલબેન શાહ", "મનીષાબેન દેસાઈ"]
+    #
+    #     index = random.randint(0, len(names_en) - 1)
+    #
+    #     teacher = Teacher.objects.create(
+    #         username_en=names_en[index],
+    #         username_gu=names_gu[index]
+    #     )
+    #
+    #     return Response(TeacherSerializer(teacher).data, status=status.HTTP_201_CREATED)
+
     def post(self, request):
-        lang = request.query_params.get('lang', 'en')
+        lang = request.query_params.get('lang')
+        if not lang:
+            return Response({'error': "Missing 'lang' parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
         if lang not in ['en', 'gu']:
-            return Response({'error': 'Invalid language'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # username = "Vaishaliben Patel" if lang == 'en' else "વૈશાલી બેન પટેલ"
-        # teacher = Teacher.objects.create(
-        #     username_en=username if lang == 'en' else '',
-        #     username_gu=username if lang == 'gu' else ''
-        # )
-
-        # Always save both fields regardless of lang
-        # teacher = Teacher.objects.create(
-        #     username_en="Vaishaliben Patel",
-        #     username_gu="વૈશાલીબેન પટેલ"
-        # )
+            return Response({'error': "Invalid language. Use 'en' or 'gu'"}, status=status.HTTP_400_BAD_REQUEST)
 
         names_en = ["Vaishaliben Patel", "Parulben Shah", "Manishaben Desai"]
         names_gu = ["વૈશાલીબેન પટેલ", "પારૂલબેન શાહ", "મનીષાબેન દેસાઈ"]
@@ -264,6 +284,7 @@ class SurveyAPIView(APIView):
 
 
 class UploadImage(APIView):
+    permission_classes = [AllowAny]  # Optional: allows public access
 
     @csrf_exempt
     def post(self, request):

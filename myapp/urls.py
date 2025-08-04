@@ -1,4 +1,8 @@
 from django.urls import path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+
 from .views import (
     TeacherCreateAPIView,
     TeacherListAPIView,
@@ -7,17 +11,31 @@ from .views import (
     UploadImage,
 )
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="AiPoshn API",
+        default_version='v1',
+        description="API for Mid-Day Meal",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
 urlpatterns = [
     # Teacher APIs
-    path('api/teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
-    path('api/teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
-    path('api/teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
+    path('teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
+    path('teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
+    path('teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
 
     # Survey API
-    path('api/survey/', SurveyAPIView.as_view(), name='get-survey'),
-    path('api/survey/<str:lang>/', SurveyAPIView.as_view(), name='get-survey-lang'),
+    path('survey/', SurveyAPIView.as_view(), name='get-survey'),
+    path('survey/<str:lang>/', SurveyAPIView.as_view(), name='get-survey-lang'),
 
     # Image Menu Verification
-    path('api/verify-menu/', UploadImage.as_view(), name='verify-menu'),
+    path('verify-menu/', UploadImage.as_view(), name='verify-menu'),
+
+# Swagger/OpenAPI UI
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
 
 ]
