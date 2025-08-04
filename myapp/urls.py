@@ -23,7 +23,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # Teacher APIs
-    path('teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
+    # path('teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
     path('teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
     path('teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
 

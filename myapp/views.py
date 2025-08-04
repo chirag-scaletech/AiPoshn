@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 import random
 import re
@@ -6,7 +7,10 @@ import tempfile
 from http import client
 from django.utils.regex_helper import normalize
 from django.views.decorators.csrf import csrf_exempt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from openai import OpenAI
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -61,11 +65,21 @@ class TeacherCreateAPIView(APIView):
         names_en = ["Vaishaliben Patel", "Parulben Shah", "Manishaben Desai"]
         names_gu = ["વૈશાલીબેન પટેલ", "પારૂલબેન શાહ", "મનીષાબેન દેસાઈ"]
 
+        schools_en = ["Government Primary School, Sector 15"]
+        schools_gu = ["સરકારી પ્રાથમિક શાળા, સેક્ટર ૧૫"]
+
+        locations_en = ["Gandhinagar, Gujarat"]
+        locations_gu = ["ગાંધીનગર, ગુજરાત"]
+
         index = random.randint(0, len(names_en) - 1)
 
         teacher = Teacher.objects.create(
             username_en=names_en[index],
-            username_gu=names_gu[index]
+            username_gu=names_gu[index],
+            school_en=schools_en[0],
+            school_gu=schools_gu[0],
+            location_en=locations_en[0],
+            location_gu=locations_gu[0],
         )
 
         return Response(TeacherSerializer(teacher).data, status=status.HTTP_201_CREATED)
@@ -82,11 +96,25 @@ class TeacherListAPIView(APIView):
         for teacher in teachers:
             data.append({
                 "id": teacher.id,
-                "username": teacher.username_en if lang == 'en' else teacher.username_gu
+                "username": teacher.username_en if lang == 'en' else teacher.username_gu,
+                "school": teacher.school_en if lang == 'en' else teacher.school_gu,
+                "location": teacher.location_en if lang == 'en' else teacher.location_gu
             })
         return Response(data, status=status.HTTP_200_OK)
 
 class TeacherDetailAPIView(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="lang",
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description="Language code: 'en' (English) or 'gu' (Gujarati)",
+                required=False,
+                default='en'
+            )
+        ]
+    )
     def get(self, request, pk):
 
         lang = request.query_params.get('lang', 'en')
@@ -100,7 +128,9 @@ class TeacherDetailAPIView(APIView):
 
         data = {
             "id": teacher.id,
-            "username": teacher.username_en if lang == 'en' else teacher.username_gu
+            "username": teacher.username_en if lang == 'en' else teacher.username_gu,
+            "school": teacher.school_en if lang == 'en' else teacher.school_gu,
+            "location": teacher.location_en if lang == 'en' else teacher.location_gu
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -284,27 +314,85 @@ class SurveyAPIView(APIView):
 
 
 class UploadImage(APIView):
-    permission_classes = [AllowAny]  # Optional: allows public access
+    permission_classes = [AllowAny]  # Optional: allows public
+
+    parser_classes = (MultiPartParser, FormParser)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="lang",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="Language code ('en' or 'gu')",
+                required=True,
+            ),
+            openapi.Parameter(
+                name="menu",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="JSON list of menu items as string, e.g., [\"poha\", \"sev\"]",
+                required=True,
+            ),
+            openapi.Parameter(
+                name="image",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="Image file of the food plate",
+                required=True,
+            ),
+        ]
+    )
 
     @csrf_exempt
     def post(self, request):
+        # if request.method != "POST":
+        #     return JsonResponse({"error": "Only POST method allowed"}, status=405)
+        #
+        # lang = request.POST.get("lang")
+        # if not lang:
+        #     return JsonResponse({"error": "Missing 'lang' parameter"}, status=400)
+        #
+        # if lang not in ["en", "gu"]:
+        #     return JsonResponse({"error": "Invalid language. Use 'en' or 'gu'"}, status=400)
+        #
+        # menu_items = request.POST.get("menu", "")
+        # image_file = request.FILES.get("image")
+        #
+        # if not menu_items or not image_file:
+        #     return JsonResponse({"error": "Missing menu or image"}, status=400)
+        #
+        # menu_list = [item.strip().lower() for item in menu_items.split(",") if item.strip()]
+
         if request.method != "POST":
             return JsonResponse({"error": "Only POST method allowed"}, status=405)
 
+            # Get and validate language
         lang = request.POST.get("lang")
         if not lang:
             return JsonResponse({"error": "Missing 'lang' parameter"}, status=400)
-
         if lang not in ["en", "gu"]:
             return JsonResponse({"error": "Invalid language. Use 'en' or 'gu'"}, status=400)
 
-        menu_items = request.POST.get("menu", "")
+        # Get image
         image_file = request.FILES.get("image")
+        if not image_file:
+            return JsonResponse({"error": "Missing 'image' parameter"}, status=400)
 
-        if not menu_items or not image_file:
-            return JsonResponse({"error": "Missing menu or image"}, status=400)
+        # Parse menu (expecting a JSON string list in FormData)
+        raw_menu = request.POST.get("menu", "[]")
+        try:
+            menu_items = json.loads(raw_menu)
+            if not isinstance(menu_items, list) or not all(isinstance(item, str) for item in menu_items):
+                raise ValueError
+        except Exception:
+            return JsonResponse({"error": "Invalid 'menu' format. Must be a JSON list of strings."}, status=400)
 
-        menu_list = [item.strip().lower() for item in menu_items.split(",") if item.strip()]
+        # Normalize menu list
+        menu_list = [item.strip().lower() for item in menu_items if item.strip()]
+
+        if not menu_list:
+            return JsonResponse({"error": "Menu list is empty or invalid"}, status=400)
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_img:
             for chunk in image_file.chunks():
@@ -319,7 +407,7 @@ class UploadImage(APIView):
             # Prompts for language
             if lang == "gu":
                 prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો."
-                prompt_nutrition = "તમે આ છબીમાં કયા ખોરાક જોઈ શકો છો? દરેક વસ્તુ માટે અંદાજિત પોષણ માહિતી (કૅલોરીઝ, પ્રોટીન, ફેટ, કાર્બસ) આપો."
+                prompt_nutrition = "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? ઉપરાંત, દરેક વસ્તુ માટે, કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ જેવી અંદાજિત પોષક માહિતી આપો."
             else:
                 prompt_food = "What food items do you see in this image? Just list them."
                 prompt_nutrition = "What food items do you see in this image? Also, for each item, provide its approximate nutritional information such as calories, protein, fat, and carbs."
@@ -372,20 +460,19 @@ class UploadImage(APIView):
             )
 
             gpt_reply = response.choices[0].message.content.strip().lower()
-            gpt_reply_Nutrition = responseNutrition.choices[0].message.content.strip().lower()
-
             detected_items = [
                 item.strip("- ").strip()
                 for item in gpt_reply.split("\n")
                 if item.strip()
             ]
-
             found_items = [
                 item for item in menu_list
                 if any(normalize(item) == normalize(d) for d in detected_items)
             ]
-
             missing_items = [item for item in menu_list if item not in found_items]
+
+            gpt_reply_Nutrition = responseNutrition.choices[0].message.content.strip().lower()
+            print(gpt_reply_Nutrition)
 
             nutritions = {}
             current_item = None
@@ -395,18 +482,41 @@ class UploadImage(APIView):
                 if not line:
                     continue
 
-                item_match = re.match(r"^\d+\.\s+\*{0,2}(.+?)\*{0,2}$", line)
+                # Start of new item (e.g., "1. **potatoes**" or "**potatoes**")
+                item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}$", line)
                 if item_match:
                     current_item = item_match.group(1).strip()
                     nutritions[current_item] = {}
                     continue
 
+                # Nutrition line for current item
                 if current_item:
-                    nutrition_match = re.match(r"[-*]?\s*\*{0,2}([\w\s]+)\*{0,2}:\s*(.+)", line)
+                    nutrition_match = re.match(r"[-*]?\s*([a-zA-Z\u0A80-\u0AFF\s]+):\s*(.+)", line)
                     if nutrition_match:
                         key = nutrition_match.group(1).strip().lower()
                         value = nutrition_match.group(2).strip()
                         nutritions[current_item][key] = value
+
+            # nutritions = {}
+            # current_item = None
+            #
+            # for line in gpt_reply_Nutrition.split("\n"):
+            #     line = line.strip()
+            #     if not line:
+            #         continue
+            #
+            #     item_match = re.match(r"^\d+\.\s+\*{0,2}(.+?)\*{0,2}$", line)
+            #     if item_match:
+            #         current_item = item_match.group(1).strip()
+            #         nutritions[current_item] = {}
+            #         continue
+            #
+            #     if current_item:
+            #         nutrition_match = re.match(r"[-*]?\s*\*{0,2}([\w\s]+)\*{0,2}:\s*(.+)", line)
+            #         if nutrition_match:
+            #             key = nutrition_match.group(1).strip().lower()
+            #             value = nutrition_match.group(2).strip()
+            #             nutritions[current_item][key] = value
 
             return JsonResponse({
                 "items_food": detected_items,
