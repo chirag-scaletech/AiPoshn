@@ -478,11 +478,24 @@ class UploadImage(APIView):
                 for item in gpt_reply.split("\n")
                 if item.strip()
             ]
-            found_items = [
-                item for item in menu_list
-                if any(normalize(item) == normalize(d) for d in detected_items)
-            ]
+
+            def normalize(text):
+                return re.sub(r"\s+", "", text.lower())
+
+            found_items = []
+            for item in menu_list:
+                norm_item = normalize(item)
+                matched = any(norm_item in normalize(detected) for detected in detected_items)
+                if matched:
+                    found_items.append(item)
+
             missing_items = [item for item in menu_list if item not in found_items]
+
+            # found_items = [
+            #     item for item in menu_list
+            #     if any(normalize(item) == normalize(d) for d in detected_items)
+            # ]
+            # missing_items = [item for item in menu_list if item not in found_items]
 
             gpt_reply_Nutrition = responseNutrition.choices[0].message.content.strip().lower()
             print(gpt_reply_Nutrition)
@@ -495,20 +508,44 @@ class UploadImage(APIView):
                 if not line:
                     continue
 
-                # Start of new item (e.g., "1. **potatoes**" or "**potatoes**")
-                item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}$", line)
+                # Match item title: e.g. "1. **poha (flattened rice)**" or "**poha**"
+                item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
                 if item_match:
                     current_item = item_match.group(1).strip()
                     nutritions[current_item] = {}
                     continue
 
-                # Nutrition line for current item
+                    # Match nutrition info in Gujarati or English
                 if current_item:
-                    nutrition_match = re.match(r"[-*]?\s*([a-zA-Z\u0A80-\u0AFF\s]+):\s*(.+)", line)
+                    nutrition_match = re.match(
+                        r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
                     if nutrition_match:
                         key = nutrition_match.group(1).strip().lower()
                         value = nutrition_match.group(2).strip()
                         nutritions[current_item][key] = value
+
+            # nutritions = {}
+            # current_item = None
+            #
+            # for line in gpt_reply_Nutrition.split("\n"):
+            #     line = line.strip()
+            #     if not line:
+            #         continue
+            #
+            #     # Start of new item (e.g., "1. **potatoes**" or "**potatoes**")
+            #     item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}$", line)
+            #     if item_match:
+            #         current_item = item_match.group(1).strip()
+            #         nutritions[current_item] = {}
+            #         continue
+            #
+            #     # Nutrition line for current item
+            #     if current_item:
+            #         nutrition_match = re.match(r"[-*]?\s*([a-zA-Z\u0A80-\u0AFF\s]+):\s*(.+)", line)
+            #         if nutrition_match:
+            #             key = nutrition_match.group(1).strip().lower()
+            #             value = nutrition_match.group(2).strip()
+            #             nutritions[current_item][key] = value
 
             # nutritions = {}
             # current_item = None
