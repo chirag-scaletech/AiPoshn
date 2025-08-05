@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import os
@@ -6,6 +7,8 @@ import re
 import tempfile
 from http import client
 
+from django.utils.decorators import method_decorator
+from django.views import View
 from rapidfuzz import fuzz
 
 from django.utils.regex_helper import normalize
@@ -23,6 +26,9 @@ from dotenv import load_dotenv
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from django.views import View
+from asgiref.sync import sync_to_async
+import asyncio
 
 load_dotenv()  # Loads from .env
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -654,3 +660,174 @@ class UploadImage(APIView):
                     nutritions[current_item][key] = value
 
         return nutritions
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class FoodImageAPIView(View):
+
+    async def post(self, request):
+        # Validate method
+        if request.method != "POST":
+            return JsonResponse({"error": "Only POST method allowed"}, status=405)
+
+        # Validate parameters
+        lang = request.POST.get("lang")
+        if lang not in ("en", "gu"):
+            return JsonResponse({"error": "Invalid or missing 'lang' parameter"}, status=400)
+
+        image_file = request.FILES.get("image")
+        if not image_file:
+            return JsonResponse({"error": "Missing 'image' parameter"}, status=400)
+
+        raw_menu = request.POST.get("menu", "[]")
+        try:
+            menu_items = json.loads(raw_menu)
+            if not isinstance(menu_items, list) or not all(isinstance(i, str) for i in menu_items):
+                raise ValueError
+        except Exception:
+            return JsonResponse(
+                {"error": "Invalid 'menu'. Must be JSON list of strings."},
+                status=400
+            )
+
+        menu_list = [item.strip().lower() for item in menu_items if item.strip()]
+        if not menu_list:
+            return JsonResponse({"error": "Parsed menu list is empty"}, status=400)
+
+        # Save uploaded image to temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+            for chunk in image_file.chunks():
+                tmp.write(chunk)
+            image_path = tmp.name
+
+        try:
+            with open(image_path, "rb") as f:
+                # image_base64 = base64.b64encode(f.read()).decode()
+                # Convert image to base64 (you can keep this sync)
+                image_base64 = self._convert_image_to_base64(image_file)
+
+            # Select prompts
+            prompts = self._get_language_prompts(lang)
+            system_prompt = "You are a food image detection expert. Identify all food items visible in the image."
+
+            # 🧠 Run GPT calls in parallel
+            food_task = asyncio.create_task(
+                self._call_gpt_image(system_prompt, prompts["food"], image_base64, as_lines=True)
+            )
+            nutrition_task = asyncio.create_task(
+                self._call_gpt_image(system_prompt, prompts["nutrition"], image_base64, max_tokens=300, as_lines=False)
+            )
+
+            detected_items, gpt_reply_nutrition = await asyncio.gather(food_task, nutrition_task)
+
+            found_items, missing_items = self._match_menu(menu_list, detected_items)
+            nutritions = self._retry_parse(gpt_reply_nutrition, max_retries=3)
+
+            return JsonResponse({
+                "items_food": detected_items,
+                "input_menu": menu_list,
+                "found_items": found_items,
+                "missing_items": missing_items,
+                "nutritions": nutritions
+            })
+
+        except Exception as err:
+            return JsonResponse({"error": str(err)}, status=500)
+
+    def _get_language_prompts(self, lang: str) -> dict:
+        if lang == "gu":
+            return {
+                "food": (
+                    "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો. "
+                    "ફક્ત યાદી આપો. માહિતી માત્ર ગુજરાતી ભાષામાં આપો."
+                ),
+                "nutrition": (
+                    "આ છબીમાં દેખાતા દરેક ખોરાક માટે તેનું નામ અને અંદાજિત પોષક માહિતી આપો "
+                    "(જેમ કે કેલરી, પ્રોટીન, ચરબી, કાર્બોહાઇડ્રેટ્સ). ફક્ત ગુજરાતી ભાષામાં."
+                ),
+            }
+        else:
+            return {
+                "food": "What food items do you see in this image? Just list them in English.",
+                "nutrition": "For each food item visible, give approximate nutrition (calories, protein, fat, carbs) in English."
+            }
+
+    async def _call_gpt_image(self, system_prompt, user_text, img_base64, max_tokens=150, as_lines=True):
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            lambda: client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": user_text},
+                            {"type": "image_url", "image_url": {
+                                "url": f"data:image/jpeg;base64,{img_base64}", "detail": "low"
+                            }},
+                        ],
+                    },
+                ],
+                max_tokens=max_tokens,
+                temperature=1
+            )
+        )
+
+        reply = response.choices[0].message.content.strip()
+        if as_lines:
+            return [
+                ln.strip("- ").strip()
+                for ln in reply.split("\n")
+                if ln.strip() and not ln.strip().startswith("```")
+            ]
+        return reply
+
+    def _match_menu(self, menu_list, detected_items, threshold=50):
+        found, missing = [], []
+        for item in menu_list:
+            for detected in detected_items:
+                if fuzz.partial_ratio(item, detected) >= threshold:
+                    found.append(item)
+                    break
+        missing = [i for i in menu_list if i not in found]
+        return found, missing
+
+    def _retry_parse(self, nutrition_text, max_retries=3):
+        for attempt in range(max_retries):
+            result = self.parse_nutrition_info(nutrition_text)
+            if result:
+                return result
+        return {}
+
+    def parse_nutrition_info(self, text) -> dict:
+        if isinstance(text, list):
+            text = "\n".join(text)  # Convert list to string
+
+        nutritions, current = {}, None
+        for line in text.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            match_item = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
+            if match_item:
+                current = match_item.group(1).strip()
+                nutritions[current] = {}
+                continue
+            if current:
+                num = re.match(r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
+                if num:
+                    nutritions[current][num.group(1).strip().lower()] = num.group(2).strip()
+        return nutritions
+
+    def _convert_image_to_base64(self, image_file):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_img:
+            for chunk in image_file.chunks():
+                temp_img.write(chunk)
+            path = temp_img.name
+
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+
+
