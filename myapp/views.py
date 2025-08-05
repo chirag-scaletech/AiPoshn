@@ -664,6 +664,35 @@ class UploadImage(APIView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class FoodImageAPIView(View):
+    permission_classes = [AllowAny]  # Optional: allows public
+
+    parser_classes = (MultiPartParser, FormParser)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name="lang",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="Language code ('en' or 'gu')",
+                required=True,
+            ),
+            openapi.Parameter(
+                name="menu",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="JSON list of menu items as string, e.g., [\"poha\", \"sev\"]",
+                required=True,
+            ),
+            openapi.Parameter(
+                name="image",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="Image file of the food plate",
+                required=True,
+            ),
+        ]
+    )
 
     async def post(self, request):
         # Validate method
@@ -718,10 +747,27 @@ class FoodImageAPIView(View):
                 self._call_gpt_image(system_prompt, prompts["nutrition"], image_base64, max_tokens=300, as_lines=False)
             )
 
+
+
             detected_items, gpt_reply_nutrition = await asyncio.gather(food_task, nutrition_task)
+
+            print("detected_items", detected_items)
+            print("gpt_reply_nutrition", gpt_reply_nutrition)
 
             found_items, missing_items = self._match_menu(menu_list, detected_items)
             nutritions = self._retry_parse(gpt_reply_nutrition, max_retries=3)
+
+            # ✅ If nutritions is still empty, recall OpenAI and try again
+            if not nutritions:
+                print("⚠️ Nutrition info was empty. Retrying GPT call...")
+                gpt_reply_nutrition = await self._call_gpt_image(
+                    system_prompt, prompts["nutrition"], image_base64, max_tokens=300, as_lines=False
+                )
+                nutritions = self._retry_parse(gpt_reply_nutrition, max_retries=3)
+
+            # ❌ Still failed after retry
+            if not nutritions:
+                return JsonResponse({"error": "Nutrition info could not be extracted"}, status=422)
 
             return JsonResponse({
                 "items_food": detected_items,
@@ -741,10 +787,15 @@ class FoodImageAPIView(View):
                     "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો. "
                     "ફક્ત યાદી આપો. માહિતી માત્ર ગુજરાતી ભાષામાં આપો."
                 ),
-                "nutrition": (
-                    "આ છબીમાં દેખાતા દરેક ખોરાક માટે તેનું નામ અને અંદાજિત પોષક માહિતી આપો "
-                    "(જેમ કે કેલરી, પ્રોટીન, ચરબી, કાર્બોહાઇડ્રેટ્સ). ફક્ત ગુજરાતી ભાષામાં."
-                ),
+                # "nutrition": (
+                #     "આ છબીમાં દેખાતા દરેક ખોરાક માટે તેનું નામ અને અંદાજિત પોષક માહિતી આપો "
+                #     "(જેમ કે કેલરી, પ્રોટીન, ચરબી, કાર્બોહાઇડ્રેટ્સ). ફક્ત ગુજરાતી ભાષામાં."
+                # ),
+                "nutrition": ( "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો"
+                    "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
+                    "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
+                    "જેમ કે કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ. "
+                    "દરેક ખોરાક વસ્તુને અલગ રીતે જણાવો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."),
             }
         else:
             return {
@@ -776,6 +827,7 @@ class FoodImageAPIView(View):
         )
 
         reply = response.choices[0].message.content.strip()
+        print("reply", reply)
         if as_lines:
             return [
                 ln.strip("- ").strip()
@@ -795,6 +847,7 @@ class FoodImageAPIView(View):
         return found, missing
 
     def _retry_parse(self, nutrition_text, max_retries=3):
+        print("Retrying to parse nutrition info...", nutrition_text)
         for attempt in range(max_retries):
             result = self.parse_nutrition_info(nutrition_text)
             if result:
