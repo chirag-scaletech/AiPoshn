@@ -240,42 +240,44 @@ class SurveyAPIView(APIView):
                 "questions": [
                     {
                         "id": "q1",
-                        "text": "ભોજન અગાઉ નક્કી કરેલ મેન્યુ મુજબ આપવામાં આવ્યું હતું કે નહીં?",
-                        "options": ["હા, મેન્યુ મુજબ સંપૂર્ણ", "થોડી ફેરફાર સાથે", "મોટા ફેરફાર સાથે",
-                                    "મેન્યુ મુજબ નહોતું"]
+                        "text": "🍽️ ભોજન અગાઉ નક્કી કરેલ મેન્યુ મુજબ આપવામાં આવ્યું હતું કે નહીં?",
+                        "options": ["✅ હા, મેન્યુ મુજબ સંપૂર્ણ", "♻️ થોડી ફેરફાર સાથે", "⚠️ મોટા ફેરફાર સાથે",
+                                    "❌ મેન્યુ મુજબ નહોતું"]
                     },
                     {
                         "id": "q2",
-                        "text": "આપેલા ભોજનની ગુણવત્તા સંતોષકારક હતી કે નહીં?",
-                        "options": ["ખૂબ સારી", "સારી", "સરેરાશ", "નબળી"]
+                        "text": "👨‍🍳 આપેલા ભોજનની ગુણવત્તા સંતોષકારક હતી કે નહીં?",
+                        "options": ["🌟 ખૂબ સારી", "👍 સારી", "😐 સરેરાશ", "👎 નબળી"]
                     },
                     {
                         "id": "q3",
-                        "text": "વિદ્યાર્થીઓ માટે ભોજનનું પ્રમાણ પૂરતું હતું કે નહીં?",
-                        "options": ["હા, બધાના માટે પૂરતું હતું", "અંશતઃ પૂરતું હતું", "થોડાક માટે ઓછું પડ્યું",
-                                    "બિલકુલ પૂરતું ન હતું"]
+                        "text": "🍛 વિદ્યાર્થીઓ માટે ભોજનનું પ્રમાણ પૂરતું હતું કે નહીં?",
+                        "options": ["✅ હા, બધાના માટે પૂરતું હતું", "⚠️ અંશતઃ પૂરતું હતું", "❗ થોડાક માટે ઓછું પડ્યું",
+                                    "❌ બિલકુલ પૂરતું ન હતું"]
                     },
                     {
                         "id": "q4",
-                        "text": "કેટલાં ટકા વિદ્યાર્થીઓએ મોટાભાગનું ભોજન લીધું હતું?",
-                        "options": ["100%", "75–80%", "50–60%", "20–30%"]
+                        "text": "📊 કેટલાં ટકા વિદ્યાર્થીઓએ મોટાભાગનું ભોજન લીધું હતું?",
+                        "options": ["💯 100%", "📉 75–80%", "📉 50–60%", "📉 20–30%"]
                     },
                     {
                         "id": "q5",
-                        "text": "આજે આપેલું ભોજન કોઈ વિદ્યાર્થીએ ખાવાનું નકાર્યું હતું?",
-                        "options": ["કોઈએ ન નકારી", "૧–૨ વિદ્યાર્થીઓ", "૩–૫ વિદ્યાર્થીઓ", "૫ કરતાં વધુ વિદ્યાર્થીઓ"]
+                        "text": "🙅‍♂️ આજે આપેલું ભોજન કોઈ વિદ્યાર્થીએ ખાવાનું નકાર્યું હતું?",
+                        "options": ["😊 કોઈએ ન નકારી", "😐 ૧–૨ વિદ્યાર્થીઓ", "☹️ ૩–૫ વિદ્યાર્થીઓ",
+                                    "😠 ૫ કરતાં વધુ વિદ્યાર્થીઓ"]
                     },
                     {
                         "id": "q6",
-                        "text": "ભોજન વહેંચણી દરમિયાન કોઈ સફાઈ અથવા સ્વચ્છતાની સમસ્યા જોવા મળી હતી?",
-                        "options": ["ના", "હળવી સમસ્યા", "ગંભીર સમસ્યા", "ધ્યાનમાં નથી"]
+                        "text": "🧼 ભોજન વહેંચણી દરમિયાન કોઈ સફાઈ અથવા સ્વચ્છતાની સમસ્યા જોવા મળી હતી?",
+                        "options": ["✅ ના", "⚠️ હળવી સમસ્યા", "🚫 ગંભીર સમસ્યા", "🙈 ધ્યાનમાં નથી"]
                     },
                     {
                         "id": "q7",
-                        "text": "ભોજન પછી વિદ્યાર્થીઓ સંતોષ અને આનંદિત લાગ્યા?",
-                        "options": ["બધા વિદ્યાર્થીઓ", "મોટા ભાગના વિદ્યાર્થીઓ", "થોડાક વિદ્યાર્થીઓ", "કોઈ નહિ"]
+                        "text": "😊 ભોજન પછી વિદ્યાર્થીઓ સંતોષ અને આનંદિત લાગ્યા?",
+                        "options": ["😄 બધા વિદ્યાર્થીઓ", "🙂 મોટા ભાગના વિદ્યાર્થીઓ", "😐 થોડાક વિદ્યાર્થીઓ", "😞 કોઈ નહિ"]
                     }
                 ]
+
             }
         else:
             survey = {
@@ -284,42 +286,44 @@ class SurveyAPIView(APIView):
                 "questions": [
                     {
                         "id": "q1",
-                        "text": "Was the meal served as per the pre-decided menu?",
-                        "options": ["Yes, exactly as per menu", "Minor changes", "Major changes",
-                                    "Not at all as per menu"]
+                        "text": "🍽️ Was the meal served as per the pre-decided menu?",
+                        "options": ["✅ Yes, exactly as per menu", "♻️ Minor changes", "⚠️ Major changes",
+                                    "❌ Not at all as per menu"]
                     },
                     {
                         "id": "q2",
-                        "text": "Was the quality of food served satisfactory?",
-                        "options": ["Very good", "Good", "Average", "Poor"]
+                        "text": "👨‍🍳 Was the quality of food served satisfactory?",
+                        "options": ["🌟 Very good", "👍 Good", "😐 Average", "👎 Poor"]
                     },
                     {
                         "id": "q3",
-                        "text": "Was the quantity of food sufficient for all students?",
-                        "options": ["Yes, sufficient for all", "Partially sufficient", "Insufficient for some",
-                                    "Not sufficient at all"]
+                        "text": "🍛 Was the quantity of food sufficient for all students?",
+                        "options": ["✅ Yes, sufficient for all", "⚠️ Partially sufficient", "❗ Insufficient for some",
+                                    "❌ Not sufficient at all"]
                     },
                     {
                         "id": "q4",
-                        "text": "What percentage of students consumed the major portion of their meal?",
-                        "options": ["100%", "75–80%", "50–60%", "20–30%"]
+                        "text": "📊 What percentage of students consumed the major portion of their meal?",
+                        "options": ["💯 100%", "📉 75–80%", "📉 50–60%", "📉 20–30%"]
                     },
                     {
                         "id": "q5",
-                        "text": "Did any student refuse to eat the food served today?",
-                        "options": ["No student refused", "1–2 students", "3–5 students", "More than 5 students"]
+                        "text": "🙅‍♂️ Did any student refuse to eat the food served today?",
+                        "options": ["😊 No student refused", "😐 1–2 students", "☹️ 3–5 students",
+                                    "😠 More than 5 students"]
                     },
                     {
                         "id": "q6",
-                        "text": "Were there any visible hygiene or cleanliness issues during food distribution?",
-                        "options": ["No issues", "Minor concern", "Major concern", "Not Observed"]
+                        "text": "🧼 Were there any visible hygiene or cleanliness issues during food distribution?",
+                        "options": ["✅ No issues", "⚠️ Minor concern", "🚫 Major concern", "🙈 Not Observed"]
                     },
                     {
                         "id": "q7",
-                        "text": "Did students appear happy and satisfied after the meal?",
-                        "options": ["All students", "Most students", "Few students", "None"]
+                        "text": "😊 Did students appear happy and satisfied after the meal?",
+                        "options": ["😄 All students", "🙂 Most students", "😐 Few students", "😞 None"]
                     }
                 ]
+
             }
 
         return JsonResponse(survey, safe=False)
@@ -420,6 +424,9 @@ class UploadImage(APIView):
             # Prompts for language
             if lang == "gu":
                 prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+
+                # prompt_food = "આ છબીમાં દૃશ્યમાન ખોરાક વસ્તુઓની સરળ, વિશિષ્ટ યાદી આપો. દરેક વસ્તુ અલગ પંક્તિમાં લખો. સમાન વસ્તુઓને એકસાથે જૂથ ન કરો. ફક્ત ખોરાકનાં નામ લખો — વિશેષણો કે વર્ણનો નહીં. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+
                 # prompt_nutrition = "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? ઉપરાંત, દરેક વસ્તુ માટે, કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ જેવી અંદાજિત પોષક માહિતી આપો. "
                 prompt_nutrition = (
                     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
@@ -430,8 +437,8 @@ class UploadImage(APIView):
 
 
             else:
-                prompt_food = "What food items do you see in this image? Just list them."
-                prompt_nutrition = "What food items do you see in this image? Also, for each item, provide its approximate nutritional information such as calories, protein, fat, and carbs."
+                prompt_food = "What food items do you see in this image? Just list them. Please provide all information in the English language only."
+                prompt_nutrition = "What food items do you see in this image? Also, for each item, provide its approximate nutritional information such as calories, protein, fat, and carbs. Please provide all information in the English language only."
 
             system_prompt = "You are a food image detection expert. Identify all food items visible in the image."
 
@@ -481,11 +488,27 @@ class UploadImage(APIView):
             )
 
             gpt_reply = response.choices[0].message.content.strip().lower()
+            print("gpt_reply",gpt_reply)
+
+            # def is_valid_line(line):
+            #     line = line.strip()
+            #     return line and not line.startswith("```") and not line.endswith("```")
+
             detected_items = [
                 item.strip("- ").strip()
                 for item in gpt_reply.split("\n")
                 if item.strip()
             ]
+
+            # def normalize(text):
+            #     return re.sub(r"\s+", "", text.lower())
+
+            # found_items = []
+            # for item in menu_list:
+            #     norm_item = normalize(item)
+            #     matched = any(norm_item in normalize(detected) for detected in detected_items)
+            #     if matched:
+            #         found_items.append(item)
 
             def normalize(text):
                 return re.sub(r"\s+", "", text.lower())
@@ -493,9 +516,11 @@ class UploadImage(APIView):
             found_items = []
             for item in menu_list:
                 norm_item = normalize(item)
-                matched = any(norm_item in normalize(detected) for detected in detected_items)
-                if matched:
-                    found_items.append(item)
+                for detected in detected_items:
+                    norm_detected = normalize(detected)
+                    if norm_item in norm_detected or norm_detected in norm_item:
+                        found_items.append(item)
+                        break
 
             missing_items = [item for item in menu_list if item not in found_items]
 
@@ -508,44 +533,27 @@ class UploadImage(APIView):
             gpt_reply_Nutrition = responseNutrition.choices[0].message.content.strip().lower()
             print(gpt_reply_Nutrition)
 
-            nutritions = {}
-            current_item = None
-
-            for line in gpt_reply_Nutrition.split("\n"):
-                line = line.strip()
-                if not line:
-                    continue
-
-                # Match item title: e.g. "1. **poha (flattened rice)**" or "**poha**"
-                item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
-                if item_match:
-                    current_item = item_match.group(1).strip()
-                    nutritions[current_item] = {}
-                    continue
-
-                    # Match nutrition info in Gujarati or English
-                if current_item:
-                    nutrition_match = re.match(
-                        r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
-                    if nutrition_match:
-                        key = nutrition_match.group(1).strip().lower()
-                        value = nutrition_match.group(2).strip()
-                        nutritions[current_item][key] = value
-            # Here Want to check for Nutrition if { }
-            # Case 1: Entire dict is empty
+            nutritions = self.parse_nutrition_info(gpt_reply_Nutrition)
+            # Retry if result is empty
             if not nutritions:
-                print("Nutrition data is completely empty")
+                nutritions = self.parse_nutrition_info(gpt_reply_Nutrition)
 
-            # Case 2: All items have empty dictionaries
-            elif all(not value for value in nutritions.values()):
-                print("All nutrition entries are empty")
-                if current_item:
-                    nutrition_match = re.match(
-                        r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
-                    if nutrition_match:
-                        key = nutrition_match.group(1).strip().lower()
-                        value = nutrition_match.group(2).strip()
-                        nutritions[current_item][key] = value
+
+            # # Here Want to check for Nutrition if { }
+            # # Case 1: Entire dict is empty
+            # if not nutritions:
+            #     print("Nutrition data is completely empty")
+            #
+            # # Case 2: All items have empty dictionaries
+            # elif all(not value for value in nutritions.values()):
+            #     print("All nutrition entries are empty")
+            #     if current_item:
+            #         nutrition_match = re.match(
+            #             r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
+            #         if nutrition_match:
+            #             key = nutrition_match.group(1).strip().lower()
+            #             value = nutrition_match.group(2).strip()
+            #             nutritions[current_item][key] = value
 
             # nutritions = {}
             # current_item = None
@@ -601,3 +609,30 @@ class UploadImage(APIView):
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+    def parse_nutrition_info(self, gpt_reply_Nutrition: str) -> dict:
+        nutritions = {}
+        current_item = None
+
+        for line in gpt_reply_Nutrition.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+
+            # Match item title: e.g., "1. **poha (flattened rice)**" or "**poha**"
+            item_match = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
+            if item_match:
+                current_item = item_match.group(1).strip()
+                nutritions[current_item] = {}
+                continue
+
+            # Match nutrition info lines under the item
+            if current_item:
+                nutrition_match = re.match(
+                    r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
+                if nutrition_match:
+                    key = nutrition_match.group(1).strip().lower()
+                    value = nutrition_match.group(2).strip()
+                    nutritions[current_item][key] = value
+
+        return nutritions
