@@ -747,9 +747,42 @@ class FoodImageAPIView(View):
                 self._call_gpt_image(system_prompt, prompts["nutrition"], image_base64, max_tokens=300, as_lines=False)
             )
 
+            def _looks_like_no_food_reply(items):
+                if not items:
+                    return True
 
+                joined = " ".join(items).lower()
+                joined = re.sub(r"[\"',.?!।]", "", joined)
+
+                # Match by keywords or indicative phrases
+                keyword_fragments = [
+                    # Gujarati fragments
+                    "નથી", "માફ", "જાણ્યું નથી", "ઓળખી શકાતું નથી", "ખાદ્ય", "ખોરાક નથી", "ખાદ્ય પદાર્થ", "નથી ઓળખી", "દેખાતા નથી", "નથી પડતો", "સ્પષ્ટ નથી","કોઈ ખોરાક દેખાતો નથી"
+                    # English fragments
+                    "no food", "sorry", "not detect", "could not see", "unable to identify"
+                ]
+
+                return any(kw in joined for kw in keyword_fragments)
 
             detected_items, gpt_reply_nutrition = await asyncio.gather(food_task, nutrition_task)
+
+            # 🧼 Clean detected items list
+            clean_items = [
+                item.strip("- ").strip()
+                for item in detected_items
+                if item.strip() and not item.strip().startswith("```")
+            ]
+
+            print("clean_items", clean_items)
+
+            # ❌ Reject if no real food detected
+            if _looks_like_no_food_reply(clean_items):
+                if lang == "gu":
+                    error_msg = "છબીમાં કોઈ ખોરાક વસ્તુ ઓળખી શકાયી નથી. કૃપા કરીને ખોરાક સમાવિષ્ટ નવી છબી અપલોડ કરો."
+                else:
+                    error_msg = "No food items detected in the image. Please upload a new image that clearly includes food items."
+
+                return JsonResponse({"error": error_msg}, status=400)
 
             print("detected_items", detected_items)
             print("gpt_reply_nutrition", gpt_reply_nutrition)
@@ -822,7 +855,7 @@ class FoodImageAPIView(View):
                     },
                 ],
                 max_tokens=max_tokens,
-                temperature=1
+                # temperature=1
             )
         )
 
