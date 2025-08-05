@@ -5,6 +5,9 @@ import random
 import re
 import tempfile
 from http import client
+
+from rapidfuzz import fuzz
+
 from django.utils.regex_helper import normalize
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
@@ -423,12 +426,16 @@ class UploadImage(APIView):
 
             # Prompts for language
             if lang == "gu":
-                prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+                # prompt_food = "આ છબીમાં તમે કયા ખોરાક વસ્તુઓ જોઈ શકો છો? ફક્ત યાદી આપો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+                prompt_food = "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો. ફક્ત યાદી આપો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
+
+                # prompt_food = "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો, જો શક્ય હોય તો આ વાનગીઓનું સામાન્ય વર્ગીકરણ પણ કરો (જેમ કે મુખ્ય ખોરાક, મીઠાઈ, સાઈડ ડિશ વગેરે). માત્ર ખોરાકના નામો અને વર્ણન આપો – વ્યક્તિ, પ્લેટ અથવા પૃષ્ઠભૂમિ વિશે કંઈ પણ ન લખો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો. "
 
                 # prompt_food = "આ છબીમાં દૃશ્યમાન ખોરાક વસ્તુઓની સરળ, વિશિષ્ટ યાદી આપો. દરેક વસ્તુ અલગ પંક્તિમાં લખો. સમાન વસ્તુઓને એકસાથે જૂથ ન કરો. ફક્ત ખોરાકનાં નામ લખો — વિશેષણો કે વર્ણનો નહીં. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."
 
                 # prompt_nutrition = "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? ઉપરાંત, દરેક વસ્તુ માટે, કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ જેવી અંદાજિત પોષક માહિતી આપો. "
                 prompt_nutrition = (
+                    "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો"
                     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
                     "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
                     "જેમ કે કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ. "
@@ -514,11 +521,19 @@ class UploadImage(APIView):
                 return re.sub(r"\s+", "", text.lower())
 
             found_items = []
+            # for item in menu_list:
+            #     norm_item = normalize(item)
+            #     for detected in detected_items:
+            #         norm_detected = normalize(detected)
+            #         if norm_item in norm_detected or norm_detected in norm_item:
+            #             found_items.append(item)
+            #             break
+
+            found_items = []
             for item in menu_list:
-                norm_item = normalize(item)
                 for detected in detected_items:
-                    norm_detected = normalize(detected)
-                    if norm_item in norm_detected or norm_detected in norm_item:
+                    score = fuzz.partial_ratio(item, detected)
+                    if score >= 85:
                         found_items.append(item)
                         break
 
@@ -533,10 +548,13 @@ class UploadImage(APIView):
             gpt_reply_Nutrition = responseNutrition.choices[0].message.content.strip().lower()
             print(gpt_reply_Nutrition)
 
-            nutritions = self.parse_nutrition_info(gpt_reply_Nutrition)
-            # Retry if result is empty
-            if not nutritions:
+            max_retries = 3
+            nutritions = {}
+            for attempt in range(max_retries):
                 nutritions = self.parse_nutrition_info(gpt_reply_Nutrition)
+                if nutritions:
+                    break  # ✅ Success
+
 
 
             # # Here Want to check for Nutrition if { }
