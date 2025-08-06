@@ -757,7 +757,7 @@ class FoodImageAPIView(View):
                 # Match by keywords or indicative phrases
                 keyword_fragments = [
                     # Gujarati fragments
-                    "નથી", "માફ", "જાણ્યું નથી", "ઓળખી શકાતું નથી", "ખાદ્ય", "ખોરાક નથી", "ખાદ્ય પદાર્થ", "નથી ઓળખી", "દેખાતા નથી", "નથી પડતો", "સ્પષ્ટ નથી","કોઈ ખોરાક દેખાતો નથી"
+                    "માફ", "જાણ્યું નથી", "ઓળખી શકાતું નથી", "ખાદ્ય", "ખોરાક નથી", "ખાદ્ય પદાર્થ", "નથી ઓળખી", "દેખાતા નથી", "નથી પડતો", "સ્પષ્ટ નથી","કોઈ ખોરાક દેખાતો નથી"
                     # English fragments
                     "no food", "sorry", "not detect", "could not see", "unable to identify"
                 ]
