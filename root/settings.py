@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-=+7b6^9u5lz9c^c-wm(4e7lrd72tktazcz)!$k07x-h2&l-2#$
 DEBUG = True
 
 # ALLOWED_HOSTS = ['192.168.1.51', 'localhost', '127.0.0. 1']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['13.201.23.142', 'api-poshan-tracker.demo.scaletech.xyz']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React dev server
@@ -100,7 +100,7 @@ WSGI_APPLICATION = 'root.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join('/data', 'db.sqlite3'),
     }
 }
 

@@ -4,8 +4,11 @@
 IMAGE_NAME="ai_poshn"
 CONTAINER_NAME="ai_poshn_container"
 PORT="8000"
+HOST_SQLITE_DIR="/home/ec2-user/AiPoshn/sqlite-data"
 
-# Print step
+# Ensure host volume directory exists
+mkdir -p $HOST_SQLITE_DIR
+
 echo "🔄 Stopping and removing existing container..."
 docker stop $CONTAINER_NAME 2>/dev/null || true
 docker rm $CONTAINER_NAME 2>/dev/null || true
@@ -23,6 +26,7 @@ echo "🚀 Running container..."
 docker run -d \
   --name $CONTAINER_NAME \
   -p $PORT:$PORT \
+  -v $HOST_SQLITE_DIR:/data \
   --env-file .env \
   --restart always \
   $IMAGE_NAME
