@@ -23,7 +23,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # Teacher APIs
-    # path('teachers/', TeacherListAPIView.as_view(), name='teacher-list'),
     path('teachers/create/', TeacherCreateAPIView.as_view(), name='teacher-create'),
     path('teachers/<int:pk>/', TeacherDetailAPIView.as_view(), name='teacher-detail'),
 
@@ -36,7 +35,7 @@ urlpatterns = [
 
     path('verify-menus/', FoodImageAPIView.as_view(), name='verify-menu'),
 
-# Swagger/OpenAPI UI
+    # Swagger/OpenAPI UI
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
 
