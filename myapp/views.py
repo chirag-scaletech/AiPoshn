@@ -581,7 +581,7 @@ class FoodImageAPIView(View):
             return JsonResponse({
                 "items_food": detected_items,
                 "input_menu": menu_list,
-                "found_items": found_items,
+                # "found_items": found_items,
                 "missing_items": missing_items,
                 "nutritions": nutritions
             })
@@ -594,6 +594,8 @@ class FoodImageAPIView(View):
             return {
                 "food": (
                     "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો. "
+                    "જો ચિત્રમાં રાંધેલા ચોખા હોય તો હંમેશા “ભાત” શબ્દ જ લખો — “ચોખા” શબ્દ નો ઉપયોગ ન કરો."
+                    "દરેક ખોરાકની સામે પીરસેલી અંદાજિત માત્રા લખો, ગ્રામ અથવા મિલી એકમમાં, અથવા સંખ્યામાં જો તે વસ્તુ ટુકડાઓમાં હોય (જેમ કે “૨ રોટલી”). ફક્ત ચિત્રમાં દેખાતી વસ્તુઓ જ લખો, અંદાજથી નવી વસ્તુ ઉમેરશો નહીં. પરંતુ ક્રમાંક (૧, ૨, ૩...) નો ઉપયોગ ન કરો." 
                     "ફક્ત યાદી આપો. માહિતી માત્ર ગુજરાતી ભાષામાં આપો."
                 ),
                 # "nutrition": (
@@ -603,8 +605,11 @@ class FoodImageAPIView(View):
                 "nutrition": ( "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો"
                     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
                     "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
-                    "જેમ કે કેલરી, પ્રોટીન, ચરબી અને કાર્બોહાઇડ્રેટ્સ. "
-                    "દરેક ખોરાક વસ્તુને અલગ રીતે જણાવો. તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."),
+                    "જેમ કે કેલરી, પ્રોટીન."
+                    "દરેક ખોરાક વસ્તુને અલગ રીતે જણાવો. "
+                    "Finally, provide a total row for all detected items in the format: "
+                    "'કુલ (સર્વ કરેલી માત્રા માટે)': {'અંદાજિત કેલરી': '~XXX કિલોકેલરી', 'પ્રોટીન': '~YY ગ્રામ'}."
+                    "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."),
             }
         else:
             return {
@@ -660,6 +665,8 @@ class FoodImageAPIView(View):
         for attempt in range(max_retries):
             result = self.parse_nutrition_info(nutrition_text)
             if result:
+                # total_nutrition = self.calculate_total_nutrition(result)
+                # result["total_nutrition"] = total_nutrition
                 return result
         return {}
 
@@ -691,5 +698,32 @@ class FoodImageAPIView(View):
 
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode()
+
+    def calculate_total_nutrition(self, nutritions: dict) -> dict:
+        total_calories = 0
+        total_protein = 0
+
+        for item, values in nutritions.items():
+            kcal_text = values.get("કૅલરી", "")
+            protein_text = values.get("પ્રોટીન", "")
+
+            # Extract average calorie from range or single number
+            kcal_nums = re.findall(r"(\d+)", kcal_text)
+            if kcal_nums:
+                kcal_nums = list(map(int, kcal_nums))
+                avg_kcal = sum(kcal_nums) / len(kcal_nums)
+                total_calories += avg_kcal
+
+            # Extract average protein from range or single number
+            protein_nums = re.findall(r"(\d+)", protein_text)
+            if protein_nums:
+                protein_nums = list(map(int, protein_nums))
+                avg_protein = sum(protein_nums) / len(protein_nums)
+                total_protein += avg_protein
+
+        return {
+            "total_kcal": round(total_calories, 2),
+            "total_protein_g": round(total_protein, 2)
+        }
 
 
