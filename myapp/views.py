@@ -515,7 +515,15 @@ class FoodImageAPIView(View):
             prompts = self._get_language_prompts(lang)
             system_prompt = "You are a food image detection expert. Identify all food items visible in the image."
 
+            # system_prompt_gujarati = "You are a food image detection expert. Identify all food items visible in the image. Provide information only in Gujarati language."
+            # system_prompt_english = "You are a food image detection expert. Identify all food items visible in the image. Provide information only in English language."
+
             # 🧠 Run GPT calls in parallel
+            # if lang == "gu":
+            #     system_prompt = system_prompt_gujarati
+            # else:
+            #     system_prompt = system_prompt_english
+
             food_task = asyncio.create_task(
                 self._call_gpt_image(system_prompt, prompts["food"], image_base64, as_lines=True)
             )
@@ -535,7 +543,7 @@ class FoodImageAPIView(View):
                     # Gujarati fragments
                     "માફ", "જાણ્યું નથી", "ઓળખી શકાતું નથી", "ખાદ્ય", "ખોરાક નથી", "ખાદ્ય પદાર્થ", "નથી ઓળખી", "દેખાતા નથી", "નથી પડતો", "સ્પષ્ટ નથી","કોઈ ખોરાક દેખાતો નથી"
                     # English fragments
-                    "no food", "sorry", "not detect", "could not see", "unable to identify"
+                    "Sorry", "Not known", "Unrecognizable", "Food", "No food", "Food item", "Not recognized", "Not visible", "Not falling", "Not clear", "No food visible"
                 ]
 
                 return any(kw in joined for kw in keyword_fragments)
@@ -613,8 +621,19 @@ class FoodImageAPIView(View):
             }
         else:
             return {
-                "food": "What food items do you see in this image? Just list them in English.",
-                "nutrition": "For each food item visible, give approximate nutrition (calories, protein, fat, carbs) in English."
+                "food": ("Identify the food shown in this picture. Name each food clearly."
+                         "If the picture shows cooked rice, always write the word rice — do not use the word cooked rice."
+                         "Write the approximate serving size against each food, in grams or ml, or in numbers if the item is in pieces (such as “2 loaves”). Write only the items shown in the picture, do not add new items by estimation. But do not use ordinal numbers (1, 2, 3...)."
+                         "Just give the list. Give the information only in English language."),
+                "nutrition": ("Please provide all information in Gujarati language only"
+"What food items do you see in this image? "
+"For each food item, first write its name and then give its approximate nutritional information — "
+                              "Such as calories, protein."
+                              "Describe each food item separately. "
+                              "Finally, provide a total row for all detected items in the format: "
+                              "'Total (for serving size)': {'Estimated calories': '~XXX kilocalories', 'protein': '~YY grams'}."
+                              "Please provide all information in English language only."
+                              )
             }
 
     async def _call_gpt_image(self, system_prompt, user_text, img_base64, max_tokens=150, as_lines=True):
