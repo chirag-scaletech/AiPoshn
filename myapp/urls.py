@@ -33,9 +33,9 @@ urlpatterns = [
     # Image Menu Verification
     path('verify-menu/', UploadImage.as_view(), name='verify-menu'),
 
-    path('verify-menus/', FoodImageAPIView.as_view(), name='verify-menu'),
+    # path('verify-menus/', FoodImageAPIView.as_view(), name='verify-menu'),
 
-    path('verify-menus1/', FoodDetectImageAPIView.as_view(), name='verify-menu'),
+    path('verify-menus/', FoodDetectImageAPIView.as_view(), name='verify-menu'),
 
     # Swagger/OpenAPI UI
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
