@@ -819,29 +819,300 @@ class FoodDetectImageAPIView(APIView):
             # Respond in strict JSON with keys 'detected' and 'not_detected'.
             # """
 
+            # prompt = f"""
+            # You are a food detection assistant.
+            #
+            # Step 1: Look at the image and identify foods. Match them against this menu list (may contain Gujarati or English): {menu_items}.
+            #
+            # Step 2: Once matches are found, always output the response in JSON format with two keys: "items_food" and "missing_items".
+            #
+            # Step 3: IMPORTANT: The final output must be written in {"Gujarati" if lang == "GU" else "English"} only.
+            # If a menu item was given in another language, translate it to the target language before returning.
+            #
+            # Example if lang=GU:
+            # {{
+            #   "items_food": ["પોહા", "સેવ"],
+            #   "missing_items": ["રોટલી"]
+            # }}
+            #
+            # Example if lang=EN:
+            # {{
+            #   "items_food": ["poha", "sev"],
+            #   "missing_items": ["roti"]
+            # }}
+            #
+            # Output strict JSON only, no text or markdown.
+            # """
+
+            # prompt = f"""
+            # You are a food nutrition assistant.
+            #
+            # Given an image of a dish and this menu list (Gujarati or English): {menu_items},
+            #
+            # Tasks:
+            # 1. Detect which items from the menu are present in the dish.
+            # 2. For each detected item, provide approximate nutrition info: calories (કિલોકેલરી) and protein (ગ્રામ).
+            # 3. Calculate a "total nutrition" (sum of calories & protein from detected items).
+            # 4. Respond ONLY in JSON with keys:
+            #    - "detected": list of detected items
+            #    - "not_detected": list of missing items
+            #    - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
+            #
+            # Important:
+            # - The response language must be {"Gujarati" if lang == "GU" else "English"}.
+            # - Do not include nutrition info for items that are not detected.
+            # - Respond in strict JSON, no markdown or explanations.
+            #
+            # Example (Gujarati):
+            # {{
+            #   "detected": ["પોહા", "સેવ"],
+            #   "not_detected": ["રોટલી"],
+            #   "nutritions": {{
+            #       "પોહા": {{
+            #           "અંદાજિત કેલરી": "130 કિલોકેલરી (1 કપ)",
+            #           "પ્રોટીન": "2.5 ગ્રામ"
+            #       }},
+            #       "સેવ": {{
+            #           "અંદાજિત કેલરી": "200 કિલોકેલરી (30 ગ્રામ)",
+            #           "પ્રોટીન": "4 ગ્રામ"
+            #       }},
+            #       "કુલ પોષણ": {{
+            #           "અંદાજિત કેલરી": "330 કિલોકેલરી",
+            #           "પ્રોટીન": "6.5 ગ્રામ"
+            #       }}
+            #   }}
+            # }}
+            #
+            # Example (English):
+            # {{
+            #   "detected": ["poha", "sev"],
+            #   "not_detected": ["roti"],
+            #   "nutritions": {{
+            #       "poha": {{
+            #           "Estimated Calories": "130 kcal (1 cup)",
+            #           "Protein": "2.5 g"
+            #       }},
+            #       "sev": {{
+            #           "Estimated Calories": "200 kcal (30 g)",
+            #           "Protein": "4 g"
+            #       }},
+            #       "Total Nutrition": {{
+            #           "Estimated Calories": "330 kcal",
+            #           "Protein": "6.5 g"
+            #       }}
+            #   }}
+            # }}
+            # """
+
+            # prompt = f"""
+            # You are a food nutrition assistant.
+            #
+            # Given an image of a dish and this menu list (Gujarati or English): {menu_items},
+            #
+            # Tasks:
+            # 1. Detect which items from the menu are present in the dish.
+            # 2. For each detected item:
+            #    - If the item is **countable** (like રોટલી, roti, puri, samosa, chapati), count how many pieces are present in the dish.
+            #    - Multiply nutrition values by the count.
+            #    - For non-countable foods (like rice, dal, sabzi, poha), give nutrition for standard portion only.
+            # 3. Provide approximate nutrition info for each detected item: Calories and Protein.
+            # 4. Calculate a "Total Nutrition" entry (sum of all calories & protein).
+            # 5. Respond ONLY in JSON with:
+            #    - "detected": list of detected items (include count in the name, e.g., "રોટલી (2)")
+            #    - "not_detected": list of missing items
+            #    - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
+            #
+            # Response must be in {"Gujarati" if lang == "GU" else "English"} only.
+            # Strict JSON, no markdown or extra text.
+            #
+            # Example Gujarati:
+            # {{
+            #   "detected": ["રોટલી (2)", "શાક"],
+            #   "not_detected": ["દાળ"],
+            #   "nutritions": {{
+            #     "રોટલી (2)": {{
+            #       "અંદાજિત કેલરી": "142 કિલોકેલરી (2 રોટલી)",
+            #       "પ્રોટીન": "6 ગ્રામ"
+            #     }},
+            #     "શાક": {{
+            #       "અંદાજિત કેલરી": "120 કિલોકેલરી",
+            #       "પ્રોટીન": "2 ગ્રામ"
+            #     }},
+            #     "કુલ પોષણ": {{
+            #       "અંદાજિત કેલરી": "262 કિલોકેલરી",
+            #       "પ્રોટીન": "8 ગ્રામ"
+            #     }}
+            #   }}
+            # }}
+            #
+            # Example English:
+            # {{
+            #   "detected": ["roti (2)", "sabzi"],
+            #   "not_detected": ["dal"],
+            #   "nutritions": {{
+            #     "roti (2)": {{
+            #       "Estimated Calories": "142 kcal (2 roti)",
+            #       "Protein": "6 g"
+            #     }},
+            #     "sabzi": {{
+            #       "Estimated Calories": "120 kcal",
+            #       "Protein": "2 g"
+            #     }},
+            #     "Total Nutrition": {{
+            #       "Estimated Calories": "262 kcal",
+            #       "Protein": "8 g"
+            #     }}
+            #   }}
+            # }}
+            # """
+
+            # prompt = f"""
+            # You are a food nutrition assistant.
+            #
+            # Given an image of a dish and this menu list (Gujarati or English): {menu_items},
+            #
+            # Tasks:
+            # 1. Detect which items from the menu are present in the dish.
+            # 2. For each detected item:
+            #    - If the item is **countable** (like રોટલી, roti, puri, samosa, chapati):
+            #        * Count ONLY clearly visible, separate pieces.
+            #        * Do NOT assume hidden or stacked pieces unless fully visible.
+            #        * Example: if 2 rotis are visible (even if folded), report "રોટલી (2)".
+            #    - Multiply nutrition values by the count.
+            #    - For non-countable foods (like rice, dal, sabzi, poha), give nutrition for 1 standard portion only.
+            # 3. Provide approximate nutrition info for each detected item: Calories and Protein.
+            # 4. Calculate a "Total Nutrition" entry (sum of all calories & protein).
+            # 5. Respond ONLY in JSON with:
+            #    - "detected": list of detected items (include count in the name, e.g., "રોટલી (2)")
+            #    - "not_detected": list of missing items
+            #    - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
+            #
+            # Response must be in {"Gujarati" if lang == "GU" else "English"} only.
+            # Strict JSON, no markdown or extra text.
+            #
+            # Important:
+            # - Do not guess hidden pieces.
+            # - If unsure between 2 or 3 pieces, always choose the lower visible number.
+            # - Folded or half-visible roti = still counts as 1, not 2.
+            #
+            # Example Gujarati:
+            # {{
+            #   "detected": ["રોટલી (2)", "શાક"],
+            #   "not_detected": ["દાળ"],
+            #   "nutritions": {{
+            #     "રોટલી (2)": {{
+            #       "અંદાજિત કેલરી": "242 કિલોકેલરી (2 રોટલી)",
+            #       "પ્રોટીન": "6 ગ્રામ"
+            #     }},
+            #     "શાક": {{
+            #       "અંદાજિત કેલરી": "120 કિલોકેલરી",
+            #       "પ્રોટીન": "2 ગ્રામ"
+            #     }},
+            #     "કુલ પોષણ": {{
+            #       "અંદાજિત કેલરી": "362 કિલોકેલરી",
+            #       "પ્રોટીન": "8 ગ્રામ"
+            #     }}
+            #   }}
+            # }}
+            #
+            # Example English:
+            # {{
+            #   "detected": ["roti (2)", "sabzi"],
+            #   "not_detected": ["dal"],
+            #   "nutritions": {{
+            #     "roti (2)": {{
+            #       "Estimated Calories": "242 kcal (2 roti)",
+            #       "Protein": "6 g"
+            #     }},
+            #     "sabzi": {{
+            #       "Estimated Calories": "120 kcal",
+            #       "Protein": "2 g"
+            #     }},
+            #     "Total Nutrition": {{
+            #       "Estimated Calories": "362 kcal",
+            #       "Protein": "8 g"
+            #     }}
+            #   }}
+            # }}
+            # """
+
             prompt = f"""
-            You are a food detection assistant.
+            You are a food nutrition assistant.
 
-            Step 1: Look at the image and identify foods. Match them against this menu list (may contain Gujarati or English): {menu_items}.
+            Given an image of a dish and this menu list (Gujarati or English): {menu_items},
 
-            Step 2: Once matches are found, always output the response in JSON format with two keys: "items_food" and "missing_items".
+            Tasks:
+            1. Detect which items from the menu are present in the dish.
+            2. For each detected item:
+               - If the item is **countable** (like રોટલી, roti, puri, samosa, chapati):
+                   * Count ONLY clearly visible, separate pieces.
+                   * Do NOT assume hidden or stacked pieces unless fully visible.
+                   * Example: if 2 rotis are visible (even if folded), report "રોટલી (2)".
+                   * Also estimate grams = count × avg grams per piece (e.g., roti ≈ 40g).
+               - Multiply nutrition values by the count.
+               - For non-countable foods (like rice, dal, sabzi, poha):
+                   * Give nutrition for 1 standard portion only.
+                   * Also include estimated grams (e.g., rice ≈ 100g, dal ≈ 120g, sabzi ≈ 120g).
+            3. Provide approximate nutrition info for each detected item: Calories, Protein, and Grams.
+            4. Calculate a "Total Nutrition" entry (sum of all calories & protein, and sum of grams).
+            5. Respond ONLY in JSON with:
+               - "items_food": list of detected items (include count in the name, e.g., "રોટલી (2)")
+               - "missing_items": list of missing items
+               - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
 
-            Step 3: IMPORTANT: The final output must be written in {"Gujarati" if lang == "GU" else "English"} only.
-            If a menu item was given in another language, translate it to the target language before returning.
+            Response must be in {"Gujarati" if lang == "GU" else "English"} only.
+            Strict JSON, no markdown or extra text.
 
-            Example if lang=GU:
+            Important:
+            - Do not guess hidden pieces.
+            - If unsure between 2 or 3 pieces, always choose the lower visible number.
+            - Folded or half-visible roti = still counts as 1, not 2.
+
+            Example Gujarati:
             {{
-              "items_food": ["પોહા", "સેવ"],
-              "missing_items": ["રોટલી"]
+              "items_food": ["રોટલી (2)", "શાક"],
+              "missing_items": ["દાળ"],
+              "nutritions": {{
+                "રોટલી (2)": {{
+                  "અંદાજિત કેલરી": "242 કિલોકેલરી",
+                  "પ્રોટીન": "6 ગ્રામ",
+                  "ગ્રામ": "80 ગ્રામ"
+                }},
+                "શાક": {{
+                  "અંદાજિત કેલરી": "120 કિલોકેલરી",
+                  "પ્રોટીન": "2 ગ્રામ",
+                  "ગ્રામ": "120 ગ્રામ"
+                }},
+                "કુલ પોષણ": {{
+                  "અંદાજિત કેલરી": "362 કિલોકેલરી",
+                  "પ્રોટીન": "8 ગ્રામ",
+                  "ગ્રામ": "200 ગ્રામ"
+                }}
+              }}
             }}
 
-            Example if lang=EN:
+            Example English:
             {{
-              "items_food": ["poha", "sev"],
-              "missing_items": ["roti"]
+              "items_food": ["roti (2)", "sabzi"],
+              "missing_items": ["dal"],
+              "nutritions": {{
+                "roti (2)": {{
+                  "Estimated Calories": "242 kcal",
+                  "Protein": "6 g",
+                  "Grams": "80 g"
+                }},
+                "sabzi": {{
+                  "Estimated Calories": "120 kcal",
+                  "Protein": "2 g",
+                  "Grams": "120 g"
+                }},
+                "Total Nutrition": {{
+                  "Estimated Calories": "362 kcal",
+                  "Protein": "8 g",
+                  "Grams": "200 g"
+                }}
+              }}
             }}
-
-            Output strict JSON only, no text or markdown.
             """
 
             response = client.chat.completions.create(
@@ -880,6 +1151,7 @@ class FoodDetectImageAPIView(APIView):
                 result_json = {
                     "items_food": [],
                     "missing_items": [],
+                    "nutritions":[],
                     "raw_response": result_text  # fallback
                 }
 
