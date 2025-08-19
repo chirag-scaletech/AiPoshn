@@ -8,7 +8,7 @@ from .views import (
     TeacherListAPIView,
     TeacherDetailAPIView,
     SurveyAPIView,
-    UploadImage, FoodImageAPIView,
+    UploadImage, FoodImageAPIView, FoodDetectImageAPIView
 )
 
 schema_view = get_schema_view(
@@ -34,6 +34,8 @@ urlpatterns = [
     path('verify-menu/', UploadImage.as_view(), name='verify-menu'),
 
     path('verify-menus/', FoodImageAPIView.as_view(), name='verify-menu'),
+
+    path('verify-menus1/', FoodDetectImageAPIView.as_view(), name='verify-menu'),
 
     # Swagger/OpenAPI UI
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

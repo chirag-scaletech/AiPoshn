@@ -607,134 +607,6 @@ class FoodImageAPIView(View):
                     "ફક્ત યાદી આપો. માહિતી માત્ર ગુજરાતી ભાષામાં આપો."
                 ),
 
-                # "food": (
-                #     "આ ચિત્રમાં દર્શાવાયેલ ખોરાકની ઓળખ કરો. દરેક ખોરાકનો સ્પષ્ટ ઉલ્લેખ કરો. "
-                #     "જો ચિત્રમાં રાંધેલા ચોખા હોય તો હંમેશા “ભાત” શબ્દ જ લખો — “ચોખા” શબ્દ નો ઉપયોગ ન કરો. "
-                #     "દરેક ખોરાકની સામે પીરસેલી અંદાજિત માત્રા લખો, ગ્રામ અથવા મિલી એકમમાં, અથવા સંખ્યામાં જો તે વસ્તુ ટુકડાઓમાં હોય (જેમ કે “૨ રોટલી”). "
-                #     "ટુકડાઓમાં આવતી વસ્તુઓ (જેમ રોટલી, પાપડ, પુરી) માટે હંમેશા ચોક્કસ સંખ્યા ગણો અને લખો, અંદાજ ન કરો. "
-                #     "ફક્ત ચિત્રમાં દેખાતી વસ્તુઓ જ લખો, અંદાજથી નવી વસ્તુ ઉમેરશો નહીં. "
-                #     "ક્રમાંક (૧, ૨, ૩...) નો ઉપયોગ ન કરો અને માત્ર યાદી આપો. માહિતી માત્ર ગુજરાતી ભાષામાં આપો."
-                # ),
-
-                # "food": (
-                #     "આ ચિત્રમાં ફક્ત અને માત્ર ચિત્રમાં દર્શાવેલી ખાદ્ય વસ્તુઓની યાદી આપો. માહિતી ફક્ત ગુજરાતી ભાષામાં આપજો અને માત્ર યાદી (JSON array) જ આપવી. કોઈ વધારાની ટિપ્પણી ન આપજો. નિયમો: "
-                #     "1) વસ્તુનું નામ સ્થાનિક રીતે ઓળખી લખો (ઉદાહરણ: જે લાંબા પડેલા પટલા સ્ટ્રિપ્સ છે તેને 'ફાફડા' લખો — 'પાપડ' ન લખશો). "
-                #     "2) દરેક વસ્તુ પછી ચોક્કસ સંખ્યા અથવા માત્રા આપો — ટુકડામાં હોય તો પૂર્ણાંક (ઉદાહરણ: '4 ફાફડા'), ગ્રામ/મિલી માં હોય તો યુનિટ સાથે (ઉદાહરણ: '30 ગ્રામ', '40 મિલી'). "
-                #     "3) જો ટુકડાઓ એકબીજામાં ઢંકાયેલા હોય તો પણ માત્ર દેખાતા ટુકડા જ ગણો (સફળતા થાય તો એનુ સ્પષ્ટ લખશો). "
-                #     "4) નવી વસ્તુ ઉમેરશો નહિ — ફક્ત ચિત્રમાં જે દેખાય તે જ લખવો. "
-                #     "5) ક્રમાંક (1., 2., ...) ના ઉપયોગ કરો નહીં; ફક્ત બિનક્રમિત યાદી આપો (JSON array સ્વરૂપે). "
-                #     "6) જો કોઈ વસ્તુની ઓળખમાં ગેરસમજ શકે તેવો સંદર્ભ હોય તો સામાન્ય અધિક પરિચિત નામ પસંદ કરો (ઉદાહરણ: ગોળ/સરવણ માટે 'ગોળ' જ). "
-                # ),
-
-                # "food": (
-                #     "આ ચિત્રમાં દેખાતી દરેક ખાદ્ય વસ્તુને ઓળખી તેને 'નામ: માત્રા' ફોર્મેટમાં આપો. "
-                #     "બધી વસ્તુઓ 'items_food' નામના શુદ્ધ JSON array માં હોવી જોઈએ. "
-                #     "દરેક એન્ટ્રી એક સાદો સ્ટ્રિંગ હોવો જોઈએ, ઉદાહરણ તરીકે 'ફાફડા: 8' અથવા 'પીળી ચટણી: 30 મિલી'. "
-                #     "ટુકડાઓમાં આવતી વસ્તુઓ (જેમ કે ફાફડા, પાપડ, પુરી, રોટલી) માટે ચોક્કસ સંખ્યા ગણો અને લખો — અંદાજ ન કરો. "
-                #     "વજન અથવા પાયાનો ઉપયોગ કરવો પડે તો ગ્રામ અથવા મિલી માં લખો. "
-                #     "ફક્ત ચિત્રમાં દેખાતી વસ્તુઓ જ લખો — અંદાજથી નવી વસ્તુ ઉમેરશો નહીં. "
-                #     "આઉટપુટમાં ફક્ત JSON array આપો, વધારાનો ટેક્સ્ટ, બ્રેકેટ્સની અંદર quotes અથવા nested arrays ના હોવા જોઈએ. "
-                #     "ક્રમાંક (૧, ૨, ૩...) નો ઉપયોગ ન કરો."
-                # ),
-
-
-
-                # "nutrition": (
-                #     "આ છબીમાં દેખાતા દરેક ખોરાક માટે તેનું નામ અને અંદાજિત પોષક માહિતી આપો "
-                #     "(જેમ કે કેલરી, પ્રોટીન, ચરબી, કાર્બોહાઇડ્રેટ્સ). ફક્ત ગુજરાતી ભાષામાં."
-                # ),
-                # "nutrition": ( "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો"
-                #     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
-                #     "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
-                #     "જેમ કે કેલરી, પ્રોટીન."
-                #     "દરેક ખોરાક વસ્તુને અલગ રીતે જણાવો. "
-                #     "Finally, provide a total row for all detected items in the format: "
-                #     "'કુલ (સર્વ કરેલી માત્રા માટે)': {'અંદાજિત કેલરી': '~XXX કિલોકેલરી', 'પ્રોટીન': '~YY ગ્રામ'}."
-                #     "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો."),
-
-                # "nutrition": (
-                #     "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો. "
-                #     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
-                #     "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને પછી તેની અંદાજિત પોષક માહિતી આપો — "
-                #     "જેમ કે કેલરી, પ્રોટીન. "
-                #     "દરેક ખોરાક વસ્તુને અલગ કી-વેલ્યુ તરીકે આપો. "
-                #     "બધા ખોરાક વસ્તુઓ આપ્યા પછી, છેલ્લે એક અલગ કી તરીકે કુલ પોષણ આપો — "
-                #     "કુલ (સર્વ કરેલી માત્રા માટે): {'અંદાજિત કેલરી': '~XXX કિલોકેલરી', 'પ્રોટીન': '~YY ગ્રામ'}. "
-                #     "આઉટપુટ ફોર્મેટ ચોક્કસપણે નીચે મુજબ હોવો જોઈએ:\n"
-                #     "{\n"
-                #     "    \"ખોરાક નામ\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XX કિલોકેલરી (યુનિટ)\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    },\n"
-                #     "    \"બીજો ખોરાક\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XX કિલોકેલરી (યુનિટ)\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    },\n"
-                #     "    \"કુલ (સર્વ કરેલી માત્રા માટે)\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XXX કિલોકેલરી\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    }\n"
-                #     "}"
-                # )
-
-                # "nutrition": (
-                #     "તમામ માહિતી કૃપા કરીને ફક્ત ગુજરાતી ભાષામાં આપો. "
-                #     "આ છબીમાં તમને કયા ખાદ્ય પદાર્થો દેખાય છે? "
-                #     "દરેક ખોરાક વસ્તુ માટે પહેલે તેનું નામ લખો અને જો માત્રા જણાવેલી હોય (જેમ કે '2 રોટલી' અથવા '150 ગ્રામ ભાત'), "
-                #     "તો પોષણ માહિતી એ સંપૂર્ણ માત્રા માટે આપો, માત્ર એક યુનિટ માટે નહીં. "
-                #     "કેલરી અને પ્રોટીન બન્ને સંખ્યાઓ ગણીને યોગ્ય માત્રા પ્રમાણે આપો. "
-                #     "દરેક ખોરાક વસ્તુને અલગ કી-વેલ્યુ તરીકે આપો. "
-                #     "બધા ખોરાક વસ્તુઓ આપ્યા પછી, છેલ્લે એક અલગ કી તરીકે કુલ પોષણ આપો — "
-                #     "કુલ (સર્વ કરેલી માત્રા માટે): {'અંદાજિત કેલરી': '~XXX કિલોકેલરી', 'પ્રોટીન': '~YY ગ્રામ'}. "
-                #     "આઉટપુટ ફોર્મેટ ચોક્કસપણે નીચે મુજબ હોવો જોઈએ:\n"
-                #     "{\n"
-                #     "    \"ખોરાક નામ\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XX કિલોકેલરી (માત્રા પ્રમાણે)\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    },\n"
-                #     "    \"બીજો ખોરાક\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XX કિલોકેલરી (માત્રા પ્રમાણે)\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    },\n"
-                #     "    \"કુલ (સર્વ કરેલી માત્રા માટે)\": {\n"
-                #     "        \"અંદાજિત કેલરી\": \"~XXX કિલોકેલરી\",\n"
-                #     "        \"પ્રોટીન\": \"~YY ગ્રામ\"\n"
-                #     "    }\n"
-                #     "}"
-                # )
-
-                # "nutrition": (
-                #     "તમામ માહિતી ફક્ત ગુજરાતી ભાષામાં આપો અને આઉટપુટ માત્ર શુદ્ધ JSON ફોર્મેટમાં આપો. "
-                #     "કોઈ વધારાની વિગત, ટિપ્પણી અથવા સમજાવટ ન આપશો — ફક્ત JSON જ આપવો. "
-                #     "નિયમો:\n"
-                #     "1) દરેક ખોરાક વસ્તુ માટે બે પ્રકારની ફીલ્ડ આપવી ફરજિયાત છે:\n"
-                #     "   (a) માનવ વાંચી શકે તેવો સ્ટ્રિંગ — જેમ કે \"અંદાજિત કેલોરિ\": \"~200 કિલોકેલરી (1 કપ)\" \n"
-                #     "   (b) મશીન વાંચી શકે તેવું સંખ્યાત્મક મૂલ્ય — જેમ કે \"calories_value\": 200 (કોઈ યુનિટ વગર)\n"
-                #     "   એ જ રીતે પ્રોટીન માટે પણ — \"પ્રોટીન\": \"~4 ગ્રામ\" અને \"protein_value\": 4.0\n"
-                #     "2) જો માત્રા આપેલી હોય (જેમ '2 રોટલી' અથવા '150 ગ્રામ'), તો પોષણની ગણતરી એ સંપૂર્ણ માત્રા માટે કરો અને બંને ફીલ્ડમાં તે મૂલ્ય દાખવો.\n"
-                #     "3) \"કુલ (સર્વ કરેલી માત્રા માટે)\" વિભાગમાં મૂલ્યો ફક્ત દરેક item's numeric ફીલ્ડમાંથી SUM કરીને આપો — માનવ વાંચન ફીલ્ડમાંથી નહિ.\n"
-                #     "4) \"કુલ\" વિભાગમાં 'calculation' સ્ટ્રિંગ આપો જે ગણતરી બતાવે (જેમ \"200 + 230 + 10 + 240 = 680\") અને 'protein_calculation' સ્ટ્રિંગ પણ આપો.\n"
-                #     "5) જો કોઈ મૂલ્ય અસામાન્ય લાગે, તો ચેતવણી આપ્યા વગર યોગ્ય અંદાજ મૂકો અને numeric ફીલ્ડમાં સાચા આંકડા આપો.\n"
-                #     "6) આઉટપુટનું ફોર્મેટ ચોક્કસ નીચે મુજબ હોવું જોઈએ:\n"
-                #     "{\n"
-                #     "  \"ખોરાક નું નામ (માત્રા સાથે)\": {\n"
-                #     "       \"અંદાજિત કેલોરિ\": \"~XXX કિલોકેલરી (માત્રા વર્ણન)\",\n"
-                #     "       \"calories_value\": XXX,\n"
-                #     "       \"પ્રોટીન\": \"~YY ગ્રામ\",\n"
-                #     "       \"protein_value\": YY\n"
-                #     "  },\n"
-                #     "  ...,\n"
-                #     "  \"કુલ (સર્વ કરેલી માત્રા માટે)\": {\n"
-                #     "       \"અંદાજિત કેલોરિ\": \"~ZZZ કિલોકેલરી\",\n"
-                #     "       \"calories_value\": ZZZ,\n"
-                #     "       \"પ્રોટીન\": \"~WW ગ્રામ\",\n"
-                #     "       \"protein_value\": WW,\n"
-                #     "       \"calculation\": \"200 + 230 + 10 + 240 = 680\",\n"
-                #     "       \"protein_calculation\": \"4 + 12 + 0.3 + 6 = 22.3\"\n"
-                #     "  }\n"
-                #     "}"
-                # )
-
                 "nutrition": (
                     "તમામ માહિતી ફક્ત ગુજરાતી ભાષામાં અને સાફ JSON ફોર્મેટમાં આપો. "
                     "દરેક ખોરાક વસ્તુનું નામ (માત્રા સાથે જો દર્શાવેલ હોય) આપો અને પછી બે ફીલ્ડ આપો: "
@@ -837,71 +709,6 @@ class FoodImageAPIView(View):
                 return result
         return {}
 
-    # def parse_nutrition_info(self, text) -> dict:
-    #     if isinstance(text, list):
-    #         text = "\n".join(text)  # Convert list to string
-    #
-    #     nutritions, current = {}, None
-    #     for line in text.split("\n"):
-    #         line = line.strip()
-    #         if not line:
-    #             continue
-    #         match_item = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
-    #         if match_item:
-    #             current = match_item.group(1).strip()
-    #             nutritions[current] = {}
-    #             continue
-    #         if current:
-    #             num = re.match(r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
-    #             if num:
-    #                 nutritions[current][num.group(1).strip().lower()] = num.group(2).strip()
-    #     return nutritions
-
-    # def parse_nutrition_info(self, text) -> dict:
-    #     if isinstance(text, list):
-    #         text = "\n".join(text)  # Convert list to string
-    #
-    #     nutritions, current = {}, None
-    #     for line in text.split("\n"):
-    #         line = line.strip()
-    #         if not line:
-    #             continue
-    #
-    #         print("line++", line)
-    #         # Match food item name (bold or numbered list)
-    #         # match_item = re.match(r"^(?:\d+\.\s*)?\*{2}(.+?)\*{2}", line)
-    #         # if match_item:
-    #         #     current = match_item.group(1).strip()
-    #         #     nutritions[current] = {}
-    #         #     continue
-    #
-    #         match_item = re.match(
-    #             r'^(?:"|)?([^\"]+?)(?:"|)[:：]?\s*\{$|^(?:\d+\.\s*)?\*{2}(.+?)\*{2}',
-    #             line
-    #         )
-    #         if match_item:
-    #             current = match_item.group(1) or match_item.group(2)
-    #             current = current.strip()
-    #             nutritions[current] = {}
-    #             continue
-    #
-    #         print("current++", current)
-    #         if current:
-    #             # Match "key: value" lines
-    #             num = re.match(r"[-*]?\s*\*{0,2}([\w\u0A80-\u0AFF\s():]+)\*{0,2}\s*[:：]\s*(.+)", line)
-    #             if num:
-    #                 key = num.group(1).strip()
-    #                 value = num.group(2).strip()
-    #
-    #                 # If it's the total row, move it outside current item
-    #                 if "કુલ" in key:
-    #                     nutritions[key] = eval(value) if value.startswith("{") else value
-    #                 else:
-    #                     nutritions[current][key] = value
-    #
-    #     print("nutritions ++++++", nutritions)
-    #     return nutritions
-
     def parse_nutrition_info(self, text) -> dict:
         if isinstance(text, list):
             text = "\n".join(text)  # Convert list to string
@@ -981,3 +788,102 @@ class FoodImageAPIView(View):
         }
 
 
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+class FoodDetectImageAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get uploaded image
+            image_file = request.FILES.get("image")
+            menu_items = request.data.get("menu")  # Expecting JSON string list: '["sev", "poha"]'
+            lang = request.data.get("lang", "GU")  # default Gujarati
+
+            if not image_file or not menu_items or not lang:
+                return Response({"error": "Image, menu_items and lang are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            import json
+            try:
+                menu_items = json.loads(menu_items)
+            except Exception as e:
+                return Response({"error": f"Invalid menu_items format: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Convert image to base64
+            image_bytes = image_file.read()
+            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+            # # Build prompt for OpenAI
+            # prompt = f"""
+            # You are a food detection assistant.
+            # Given the image of a dish and this menu list: {menu_items},
+            # identify which items are present in the dish and which are missing.
+            # Respond in strict JSON with keys 'detected' and 'not_detected'.
+            # """
+
+            prompt = f"""
+            You are a food detection assistant.
+
+            Step 1: Look at the image and identify foods. Match them against this menu list (may contain Gujarati or English): {menu_items}.
+
+            Step 2: Once matches are found, always output the response in JSON format with two keys: "items_food" and "missing_items".
+
+            Step 3: IMPORTANT: The final output must be written in {"Gujarati" if lang == "GU" else "English"} only.
+            If a menu item was given in another language, translate it to the target language before returning.
+
+            Example if lang=GU:
+            {{
+              "items_food": ["પોહા", "સેવ"],
+              "missing_items": ["રોટલી"]
+            }}
+
+            Example if lang=EN:
+            {{
+              "items_food": ["poha", "sev"],
+              "missing_items": ["roti"]
+            }}
+
+            Output strict JSON only, no text or markdown.
+            """
+
+            response = client.chat.completions.create(
+                model="chatgpt-4o-latest",  # vision-capable model
+                messages=[
+                    {"role": "system", "content": "You are a helpful food recognition assistant."},
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{image_base64}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                temperature=0
+            )
+
+            # Parse response text
+            result_text = response.choices[0].message.content.strip()
+
+            # Clean markdown fences if present
+            if result_text.startswith("```"):
+                result_text = result_text.strip("`")  # remove ```
+                if result_text.startswith("json"):
+                    result_text = result_text[len("json"):].strip()
+
+            import json
+            try:
+                result_json = json.loads(result_text)
+            except Exception:
+                result_json = {
+                    "items_food": [],
+                    "missing_items": [],
+                    "raw_response": result_text  # fallback
+                }
+
+            return Response(result_json, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
