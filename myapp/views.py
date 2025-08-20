@@ -796,7 +796,7 @@ class FoodDetectImageAPIView(APIView):
             # Get uploaded image
             image_file = request.FILES.get("image")
             menu_items = request.data.get("menu")  # Expecting JSON string list: '["sev", "poha"]'
-            lang = request.data.get("lang", "GU")  # default Gujarati
+            lang = request.data.get("lang", "gu")  # default Gujarati
 
             if not image_file or not menu_items or not lang:
                 return Response({"error": "Image, menu_items and lang are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -1228,7 +1228,7 @@ class FoodDetectImageAPIView(APIView):
                                        - "missing_items": list of missing items
                                        - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
                                     
-                                    Response must be in {"Gujarati" if lang == "GU" else "English"} only.
+                                    Response must be in {"Gujarati" if lang == "gu" else "English"} only.
                                     Strict JSON, no markdown or extra text.
                                     
                                     Important:
@@ -1246,7 +1246,7 @@ class FoodDetectImageAPIView(APIView):
                                          • ભાખરી → Bhakhri  
                                          • ભાત, ચોખા → Rice
                                          • ભુંગળા, કલરફુલ ભુંગળા → Bhungala                                                             
-                                    🔹 - If you find a synonym, normalize it to the menu’s wording (Gujarati if `lang=="GU"`, English if `lang=="EN"`).
+                                    🔹 - If you find a synonym, normalize it to the menu’s wording (Gujarati if `lang=="gu"`, English if `lang=="en"`).
 
                                     Example Gujarati:
                                     {{
