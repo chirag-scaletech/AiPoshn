@@ -1204,96 +1204,202 @@ class FoodDetectImageAPIView(APIView):
             #             }}
             #             """
 
+            # prompt = f"""
+            #                         You are a food nutrition assistant.
+            #
+            #                         Given an image of a dish and this menu list (Gujarati or English): {menu_items},
+            #
+            #                         Tasks:
+            #                         1. Detect which items from the menu are present in the dish.
+            #                         2. For each detected item:
+            #                            - If the item is **countable** (like રોટલી, roti, ભાખરી, puri, samosa, chapati):
+            #                                * Count ONLY clearly visible, separate pieces.
+            #                                * Do NOT assume hidden or stacked pieces unless fully visible.
+            #                                * Example: if 2 rotis or 1 bhakhri are visible, report "રોટલી (2)" or "ભાખરી (1)".
+            #                                * Also estimate grams = count × avg grams per piece (e.g., roti ≈ 40g, bhakhri ≈ 50g).
+            #                            - Multiply nutrition values by the count.
+            #                            - For non-countable foods (like rice, dal, sabzi, poha):
+            #                                * Give nutrition for 1 standard portion only.
+            #                                * Also include estimated grams (e.g., rice ≈ 100g, dal ≈ 120g, sabzi ≈ 120g).
+            #                         3. Provide approximate nutrition info for each detected item: Calories, Protein, and Grams.
+            #                         4. Calculate a "Total Nutrition" entry (sum of all calories & protein, and sum of grams).
+            #                         5. Respond ONLY in JSON with:
+            #                            - "items_food": list of detected items (include count in the name, e.g., "રોટલી (2)")
+            #                            - "missing_items": list of missing items
+            #                            - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
+            #
+            #                         Response must be in {"Gujarati" if lang == "gu" else "English"} only.
+            #                         Strict JSON, no markdown or extra text.
+            #
+            #                         Important:
+            #                         - Do not guess hidden pieces.
+            #                         - If unsure between 2 or 3 pieces, always choose the lower visible number.
+            #                         - Folded or half-visible roti = still counts as 1, not 2.
+            #                         🔹 - Only mark a menu item as detected if the visible food matches that exact item or its explicit synonym.
+            #                         🔹 - Do NOT substitute a different sabzi (e.g., bhindi for "મગ શાક"). If a different sabzi is visible but not in the menu, leave the menu item in "missing_items".
+            #                         🔹 - If a food is clearly visible but not in the menu, add it under an optional field `"extras_found"` without affecting detection.
+            #                         🔹 - Always detect food items even if they appear in Gujarati, English, or mixed forms.
+            #                              Use this synonym mapping for detection and normalization:
+            #                              • ડુંગળી, કાંદો → Onion
+            #                              • બટાકા, આલુ → Potato
+            #                              • રોટલી, ચપાટી → Roti
+            #                              • ભાખરી → Bhakhri
+            #                              • ભાત, ચોખા → Rice
+            #                              • ભુંગળા, કલરફુલ ભુંગળા → Bhungala
+            #                         🔹 - If you find a synonym, normalize it to the menu’s wording (Gujarati if `lang=="gu"`, English if `lang=="en"`).
+            #
+            #                         Example Gujarati:
+            #                         {{
+            #                           "items_food": ["રોટલી (2)", "શાક"],
+            #                           "missing_items": ["દાળ"],
+            #                           "nutritions": {{
+            #                             "રોટલી (2)": {{
+            #                               "અંદાજિત કેલરી": "242 કિલોકેલરી",
+            #                               "પ્રોટીન": "6 ગ્રામ",
+            #                               "ગ્રામ": "80 ગ્રામ"
+            #                             }},
+            #                             "શાક": {{
+            #                               "અંદાજિત કેલરી": "120 કિલોકેલરી",
+            #                               "પ્રોટીન": "2 ગ્રામ",
+            #                               "ગ્રામ": "120 ગ્રામ"
+            #                             }},
+            #                             "કુલ પોષણ": {{
+            #                               "અંદાજિત કેલરી": "362 કિલોકેલરી",
+            #                               "પ્રોટીન": "8 ગ્રામ",
+            #                               "ગ્રામ": "200 ગ્રામ"
+            #                             }}
+            #                           }}
+            #                         }}
+            #
+            #                         Example English:
+            #                         {{
+            #                           "items_food": ["roti (2)", "sabzi"],
+            #                           "missing_items": ["dal"],
+            #                           "nutritions": {{
+            #                             "roti (2)": {{
+            #                               "Estimated Calories": "242 kcal",
+            #                               "Protein": "6 g",
+            #                               "Grams": "80 g"
+            #                             }},
+            #                             "sabzi": {{
+            #                               "Estimated Calories": "120 kcal",
+            #                               "Protein": "2 g",
+            #                               "Grams": "120 g"
+            #                             }},
+            #                             "Total Nutrition": {{
+            #                               "Estimated Calories": "362 kcal",
+            #                               "Protein": "8 g",
+            #                               "Grams": "200 g"
+            #                             }}
+            #                           }}
+            #                         }}
+            #                         """
+
             prompt = f"""
-                                    You are a food nutrition assistant.
+            You are a food nutrition assistant.
 
-                                    Given an image of a dish and this menu list (Gujarati or English): {menu_items},
+            Given an image of a dish and this menu list (Gujarati or English): {menu_items},
 
-                                    Tasks:
-                                    1. Detect which items from the menu are present in the dish.
-                                    2. For each detected item:
-                                       - If the item is **countable** (like રોટલી, roti, ભાખરી, puri, samosa, chapati):
-                                           * Count ONLY clearly visible, separate pieces.
-                                           * Do NOT assume hidden or stacked pieces unless fully visible.
-                                           * Example: if 2 rotis or 1 bhakhri are visible, report "રોટલી (2)" or "ભાખરી (1)".
-                                           * Also estimate grams = count × avg grams per piece (e.g., roti ≈ 40g, bhakhri ≈ 50g).
-                                       - Multiply nutrition values by the count.
-                                       - For non-countable foods (like rice, dal, sabzi, poha):
-                                           * Give nutrition for 1 standard portion only.
-                                           * Also include estimated grams (e.g., rice ≈ 100g, dal ≈ 120g, sabzi ≈ 120g).
-                                    3. Provide approximate nutrition info for each detected item: Calories, Protein, and Grams.
-                                    4. Calculate a "Total Nutrition" entry (sum of all calories & protein, and sum of grams).
-                                    5. Respond ONLY in JSON with:
-                                       - "items_food": list of detected items (include count in the name, e.g., "રોટલી (2)")
-                                       - "missing_items": list of missing items
-                                       - "nutritions": dictionary with nutrition info for detected items and a "total nutrition" entry.
-                                    
-                                    Response must be in {"Gujarati" if lang == "gu" else "English"} only.
-                                    Strict JSON, no markdown or extra text.
-                                    
-                                    Important:
-                                    - Do not guess hidden pieces.
-                                    - If unsure between 2 or 3 pieces, always choose the lower visible number.
-                                    - Folded or half-visible roti = still counts as 1, not 2.
-                                    🔹 - Only mark a menu item as detected if the visible food matches that exact item or its explicit synonym.
-                                    🔹 - Do NOT substitute a different sabzi (e.g., bhindi for "મગ શાક"). If a different sabzi is visible but not in the menu, leave the menu item in "missing_items".
-                                    🔹 - If a food is clearly visible but not in the menu, add it under an optional field `"extras_found"` without affecting detection.
-                                    🔹 - Always detect food items even if they appear in Gujarati, English, or mixed forms.  
-                                         Use this synonym mapping for detection and normalization:
-                                         • ડુંગળી, કાંદો → Onion  
-                                         • બટાકા, આલુ → Potato  
-                                         • રોટલી, ચપાટી → Roti  
-                                         • ભાખરી → Bhakhri  
-                                         • ભાત, ચોખા → Rice
-                                         • ભુંગળા, કલરફુલ ભુંગળા → Bhungala                                                             
-                                    🔹 - If you find a synonym, normalize it to the menu’s wording (Gujarati if `lang=="gu"`, English if `lang=="en"`).
+            ### Tasks
 
-                                    Example Gujarati:
-                                    {{
-                                      "items_food": ["રોટલી (2)", "શાક"],
-                                      "missing_items": ["દાળ"],
-                                      "nutritions": {{
-                                        "રોટલી (2)": {{
-                                          "અંદાજિત કેલરી": "242 કિલોકેલરી",
-                                          "પ્રોટીન": "6 ગ્રામ",
-                                          "ગ્રામ": "80 ગ્રામ"
-                                        }},
-                                        "શાક": {{
-                                          "અંદાજિત કેલરી": "120 કિલોકેલરી",
-                                          "પ્રોટીન": "2 ગ્રામ",
-                                          "ગ્રામ": "120 ગ્રામ"
-                                        }},
-                                        "કુલ પોષણ": {{
-                                          "અંદાજિત કેલરી": "362 કિલોકેલરી",
-                                          "પ્રોટીન": "8 ગ્રામ",
-                                          "ગ્રામ": "200 ગ્રામ"
-                                        }}
-                                      }}
-                                    }}
+            Step 1: Detection (STRICT)
+            1. For each item in the given menu list:
+               - If the item is clearly visible in the image → add it to "items_food".
+               - If the item is not clearly visible → add it to "missing_items".
+               - You MUST NOT add a menu item to "items_food" unless it is visible in the image.
+               - Do not assume, infer, or guess based on typical thali items.
+               - If unsure, always put it in "missing_items".
 
-                                    Example English:
-                                    {{
-                                      "items_food": ["roti (2)", "sabzi"],
-                                      "missing_items": ["dal"],
-                                      "nutritions": {{
-                                        "roti (2)": {{
-                                          "Estimated Calories": "242 kcal",
-                                          "Protein": "6 g",
-                                          "Grams": "80 g"
-                                        }},
-                                        "sabzi": {{
-                                          "Estimated Calories": "120 kcal",
-                                          "Protein": "2 g",
-                                          "Grams": "120 g"
-                                        }},
-                                        "Total Nutrition": {{
-                                          "Estimated Calories": "362 kcal",
-                                          "Protein": "8 g",
-                                          "Grams": "200 g"
-                                        }}
-                                      }}
-                                    }}
-                                    """
+            Step 2: Extras
+            2. If any foods are visible in the image but not in the menu list, add them under "extras_found".
+
+            Step 3: Nutrition
+            3. For each item in "items_food":
+               - If it is countable (રોટલી, ભાખરી, puri, chapati, samosa):
+                    * Count ONLY fully visible, separate, round pieces.
+                    * Folded, half-visible, or torn roti still counts as ONE piece only.
+                    * If 2 rotis are stacked but only one edge is visible, count as 1 (not 2).
+                    * Always choose the lowest visible count.
+                    * Estimate grams = count × avg grams (roti≈40g, bhakhri≈50g).
+               - If it is non-countable (rice, dal, sabzi, poha):
+                   * Report as one standard portion with estimated grams
+                     (rice≈100g, dal≈120g, sabzi≈120g).
+            4. Provide nutrition (Calories, Protein, Grams) for each detected item.
+            5. Add a "Total Nutrition" entry summing all detected items.
+
+            ### Important Rules
+            - STRICT: Never add a menu item to "items_food" if it is not visible.  
+            - If unsure, always put it in "missing_items".  
+            - Do not auto-complete the list to include all menu items.  
+            - Output must remain faithful to the image.  
+            - If any menu item is placed in "items_food" but not visible in the image, the answer is INVALID.
+
+            ### Synonym Normalization
+            - ડુંગળી, કાંદો → Onion  
+            - બટાકા, આલુ → Potato  
+            - રોટલી, ચપાટી → Roti  
+            - ભાખરી → Bhakhri  
+            - ભાત, ચોખા → Rice  
+            - ભુંગળા → Bhungala  
+
+            ### Response Format
+            Respond ONLY in strict JSON:
+            - "items_food": detected menu items
+            - "missing_items": menu items not visible
+            - "extras_found": visible foods not in menu list
+            - "nutritions": nutrition info per item + "Total Nutrition"
+
+            ### Output Language
+            Respond in {"Gujarati" if lang == "gu" else "English"} only.
+
+            ### Example Gujarati:
+            {{
+              "items_food": ["રોટલી (2)", "શાક"],
+              "missing_items": ["દાળ"],
+              "extras_found": ["પાપડ", "દહીં"],
+              "nutritions": {{
+                "રોટલી (2)": {{
+                  "અંદાજિત કેલરી": "242 કિલોકેલરી",
+                  "પ્રોટીન": "6 ગ્રામ",
+                  "ગ્રામ": "80 ગ્રામ"
+                }},
+                "શાક": {{
+                  "અંદાજિત કેલરી": "120 કિલોકેલરી",
+                  "પ્રોટીન": "2 ગ્રામ",
+                  "ગ્રામ": "120 ગ્રામ"
+                }},
+                "કુલ પોષણ": {{
+                  "અંદાજિત કેલરી": "362 કિલોકેલરી",
+                  "પ્રોટીન": "8 ગ્રામ",
+                  "ગ્રામ": "200 ગ્રામ"
+                }}
+              }}
+            }}
+
+            ### Example English:
+            {{
+              "items_food": ["roti (2)", "sabzi"],
+              "missing_items": ["dal"],
+              "extras_found": ["papad", "curd"],
+              "nutritions": {{
+                "roti (2)": {{
+                  "Estimated Calories": "242 kcal",
+                  "Protein": "6 g",
+                  "Grams": "80 g"
+                }},
+                "sabzi": {{
+                  "Estimated Calories": "120 kcal",
+                  "Protein": "2 g",
+                  "Grams": "120 g"
+                }},
+                "Total Nutrition": {{
+                  "Estimated Calories": "362 kcal",
+                  "Protein": "8 g",
+                  "Grams": "200 g"
+                }}
+              }}
+            }}
+            """
 
             response = client.chat.completions.create(
                 model="chatgpt-4o-latest",  # vision-capable model
