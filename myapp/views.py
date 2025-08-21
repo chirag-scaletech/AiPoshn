@@ -1324,7 +1324,18 @@ class FoodDetectImageAPIView(APIView):
                - If it is non-countable (rice, dal, sabzi, poha):
                    * Report as one standard portion with estimated grams
                      (rice≈100g, dal≈120g, sabzi≈120g).
-            4. Provide nutrition (Calories, Protein, Grams) for each detected item.
+            4. Provide nutrition for each detected item:
+               - Calories (kcal)
+               - Protein (g)
+               - Fat (g)
+               - Carbohydrates (g)
+               - Fiber (g)
+               - Vitamin A (%DV)
+               - Vitamin C (%DV)
+               - Calcium (%DV)
+               - Iron (%DV)
+               - Scale nutrition based on count for countable items or portion grams for non-countable items.
+
             5. Add a "Total Nutrition" entry summing all detected items.
 
             ### Important Rules
