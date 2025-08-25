@@ -1329,11 +1329,8 @@ class FoodDetectImageAPIView(APIView):
                - Protein (g)
                - Fat (g)
                - Carbohydrates (g)
-               - Fiber (g)
-               - Vitamin A (%DV)
-               - Vitamin C (%DV)
-               - Calcium (%DV)
-               - Iron (%DV)
+               - Fiber (g)               
+               - Calcium (%DV)               
                - Scale nutrition based on count for countable items or portion grams for non-countable items.
 
             5. Add a "Total Nutrition" entry summing all detected items.
